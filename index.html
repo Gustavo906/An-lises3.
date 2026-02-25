@@ -3,25 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PROSTATS APEX | Titan v50.0</title>
+    <title>PROSTATS APEX | Titan v51.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap');
-        :root { --bg: #030305; --card: #0a0a0c; --border: #1a1a1e; --accent: #3b82f6; --live: #ef4444; --away: #f59e0b; --win: #10b981; --loss: #ef4444; --draw: #71717a; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap');
+        
+        :root { 
+            --bg: #030305; --card: #0a0a0c; --border: #1a1a1e; 
+            --accent: #3b82f6; --live: #ef4444; --away: #f59e0b; 
+            --win: #10b981; --loss: #ef4444; --draw: #71717a; 
+        }
+        
         body { background: var(--bg); color: #e4e4e7; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .game-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; transition: 0.2s; cursor: pointer; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+
+        /* Grid Principal */
+        .game-card { 
+            background: var(--card); border: 1px solid var(--border); border-radius: 16px; 
+            transition: all 0.2s ease; cursor: pointer;
+        }
         .game-card:hover { border-color: var(--accent); background: #0c0c11; transform: translateY(-2px); }
-        .min-badge { font-family: 'JetBrains Mono'; font-size: 10px; background: rgba(59, 130, 246, 0.1); color: var(--accent); padding: 3px 8px; border-radius: 5px; font-weight: 800; border: 1px solid rgba(59, 130, 246, 0.2); }
+
+        .min-badge { 
+            font-family: 'JetBrains Mono'; font-size: 10px; background: rgba(59, 130, 246, 0.1); 
+            color: var(--accent); padding: 3px 8px; border-radius: 5px; font-weight: 800;
+        }
+
+        /* Modal Ultra Clarity */
         #modal { display: none; backdrop-filter: blur(30px); z-index: 10000; }
         #modal.active { display: flex; }
-        .modal-body { background: #050507; border: 1px solid #27272a; width: 95%; max-width: 1000px; border-radius: 28px; max-height: 94vh; overflow: hidden; display: flex; flex-direction: column; }
-        .hist-item { display: flex; align-items: center; background: #0e0e11; border-radius: 8px; border: 1px solid #1a1a1e; overflow: hidden; height: 38px; }
-        .res-indicator { width: 4px; height: 100%; flex-shrink: 0; }
-        .res-v { background-color: var(--win); } .res-d { background-color: var(--loss); } .res-e { background-color: var(--draw); }
-        .bar-bg { height: 6px; background: #161618; border-radius: 3px; overflow: hidden; margin-top: 8px; }
-        .bar-fill { height: 100%; width: 0%; transition: width 1s ease; }
+        .modal-body { 
+            background: #050507; border: 1px solid #27272a; width: 95%; max-width: 950px; 
+            border-radius: 28px; max-height: 94vh; overflow: hidden; display: flex; flex-direction: column;
+        }
+
+        /* Histórico Reestruturado v51 */
+        .hist-container { display: flex; flex-direction: column; gap: 4px; }
+        .hist-row { 
+            display: flex; align-items: center; background: #0e0e11; 
+            padding: 8px 12px; border-radius: 8px; border: 1px solid #161618;
+            height: 34px; gap: 12px;
+        }
+        .res-pill { 
+            width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+            font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono';
+        }
+        .bg-v { background: var(--win); color: #000; }
+        .bg-d { background: var(--loss); color: #fff; }
+        .bg-e { background: var(--draw); color: #fff; }
+
+        .hist-score { font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 700; color: #fff; width: 35px; flex-shrink: 0; }
+        .hist-opp { font-size: 10px; font-weight: 500; color: #71717a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+        /* Barras de Probabilidade */
+        .bar-bg { height: 5px; background: #161618; border-radius: 10px; overflow: hidden; margin-top: 6px; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
+
         .live-pulse { width: 8px; height: 8px; background: var(--live); border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
@@ -29,7 +72,9 @@
 <body>
 
     <nav class="h-16 border-b border-white/5 bg-black/90 sticky top-0 backdrop-blur-md z-[100] px-6 flex items-center justify-between">
-        <h1 class="text-white font-black italic text-base uppercase">Titan <span class="text-blue-500 text-xs">v50.0 Predictive</span></h1>
+        <div class="flex flex-col">
+            <span class="text-white font-black italic text-base uppercase tracking-tighter">Titan <span class="text-blue-500 text-xs">v51.0 Clarity</span></span>
+        </div>
         <select id="leagueSelect" onchange="initApp()" class="bg-zinc-900 border border-zinc-800 text-[10px] font-bold px-4 py-2 rounded-xl text-white outline-none">
             <option value="CL">CHAMPIONS LEAGUE</option>
             <option value="PL">PREMIER LEAGUE</option>
@@ -40,65 +85,80 @@
     </nav>
 
     <main class="p-4 md:p-8 max-w-7xl mx-auto">
-        <div id="statusMsg" class="text-[9px] font-black uppercase tracking-widest text-zinc-600 mb-6 flex items-center gap-2">
-            <div class="w-1.5 h-1.5 bg-blue-600 rounded-full"></div> Análise Preditiva de Dados Ativa
-        </div>
         <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </main>
 
+    <!-- MODAL -->
     <div id="modal" class="fixed inset-0 p-3 md:p-4 items-center justify-center bg-black/95">
         <div class="modal-body shadow-2xl">
+            <!-- HEADER -->
             <div class="p-4 border-b border-white/5 flex justify-between items-center bg-zinc-900/10">
                 <div class="flex items-center gap-2">
                     <div class="live-pulse"></div>
-                    <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Titan Data Prediction Engine</span>
+                    <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Predictive Neural Engine</span>
                 </div>
-                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center bg-zinc-900 rounded-lg text-zinc-400 hover:text-white">&times;</button>
+                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center bg-zinc-900 rounded-lg text-zinc-400 hover:text-white transition-all">&times;</button>
             </div>
 
             <div class="p-6 md:p-8 overflow-y-auto flex-1">
-                <!-- PAINEL PREITIVO -->
-                <div class="bg-gradient-to-b from-blue-900/10 to-zinc-900/20 border border-white/5 rounded-[24px] p-6 md:p-10 mb-8">
+                <!-- BANNER CENTRAL -->
+                <div class="bg-gradient-to-b from-zinc-900/40 to-black/20 border border-white/5 rounded-[24px] p-6 md:p-10 mb-8">
                     <div class="flex items-center justify-between gap-4">
                         <div class="flex-1 text-center">
-                            <img id="mLogoH" class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 object-contain">
-                            <div id="mNameH" class="text-[11px] font-black text-white uppercase truncate">--</div>
+                            <img id="mLogoH" class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 object-contain" onerror="this.src='https://via.placeholder.com/60?text=Logo'">
+                            <div id="mNameH" class="text-[10px] font-bold text-white uppercase tracking-wider truncate">--</div>
                         </div>
                         <div class="flex-1 text-center">
-                            <div class="text-[8px] font-black text-blue-500 uppercase mb-2 tracking-widest">Placar Estimado Titan</div>
-                            <div id="mScore" class="text-5xl md:text-7xl font-black italic mono text-white leading-none tracking-tighter">0-0</div>
+                            <div class="text-[8px] font-black text-blue-500 uppercase mb-2 tracking-[2px]">Estimativa Titan</div>
+                            <div id="mScore" class="text-5xl md:text-7xl font-black italic mono text-white leading-none">0-0</div>
                             <div class="flex items-center justify-center gap-2 mt-4">
                                 <span id="mMin" class="min-badge">--</span>
-                                <span id="mCurrentScore" class="text-[10px] font-bold text-zinc-500 bg-black/40 px-2 py-1 rounded border border-white/5">Real: 0-0</span>
+                                <span id="mCurrentScore" class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Real: 0-0</span>
                             </div>
                         </div>
                         <div class="flex-1 text-center">
-                            <img id="mLogoA" class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 object-contain">
-                            <div id="mNameA" class="text-[11px] font-black text-amber-500 uppercase truncate">--</div>
+                            <img id="mLogoA" class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 object-contain" onerror="this.src='https://via.placeholder.com/60?text=Logo'">
+                            <div id="mNameA" class="text-[10px] font-bold text-amber-500 uppercase tracking-wider truncate">--</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- PROBABILIDADES -->
                     <div class="lg:col-span-4 space-y-6">
-                        <div class="bg-[#0c0c0e] border border-white/5 p-5 rounded-2xl">
-                            <h4 class="text-[9px] font-black text-zinc-500 uppercase mb-5 tracking-widest">Probabilidades de Desfecho</h4>
-                            <div class="space-y-5">
-                                <div><div class="flex justify-between text-[10px] font-bold uppercase"><span>Casa</span> <span id="mProbH">0%</span></div><div class="bar-bg"><div id="mBarH" class="bar-fill bg-blue-600"></div></div></div>
-                                <div><div class="flex justify-between text-[10px] font-bold uppercase"><span>Empate</span> <span id="mProbD">0%</span></div><div class="bar-bg"><div id="mBarD" class="bar-fill bg-zinc-600"></div></div></div>
-                                <div><div class="flex justify-between text-[10px] font-bold uppercase text-amber-500"><span>Visitante</span> <span id="mProbA">0%</span></div><div class="bar-bg"><div id="mBarA" class="bar-fill bg-amber-500"></div></div></div>
+                        <div class="bg-[#0c0c0e] border border-white/5 p-6 rounded-2xl">
+                            <h4 class="text-[9px] font-black text-zinc-500 uppercase mb-6 tracking-widest">Probabilidades Finais</h4>
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold uppercase"><span>Mandante</span> <span id="mProbH">0%</span></div>
+                                    <div class="bar-bg"><div id="mBarH" class="bar-fill bg-blue-600"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold uppercase"><span>Empate</span> <span id="mProbD">0%</span></div>
+                                    <div class="bar-bg"><div id="mBarD" class="bar-fill bg-zinc-600"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold uppercase text-amber-500"><span>Visitante</span> <span id="mProbA">0%</span></div>
+                                    <div class="bar-bg"><div id="mBarA" class="bar-fill bg-amber-500"></div></div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- HISTÓRICO ULTRA CLARITY -->
                     <div class="lg:col-span-8 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><h4 class="text-[9px] font-black text-blue-500 uppercase mb-3 tracking-widest">Forma Recente: Casa</h4><div id="mHistoryH" class="space-y-1"></div></div>
-                            <div><h4 class="text-[9px] font-black text-amber-500 uppercase mb-3 tracking-widest">Forma Recente: Fora</h4><div id="mHistoryA" class="space-y-1"></div></div>
+                            <div>
+                                <h4 class="text-[9px] font-black text-blue-500 uppercase mb-4 tracking-widest">Forma: Mandante</h4>
+                                <div id="mHistoryH" class="hist-container"></div>
+                            </div>
+                            <div>
+                                <h4 class="text-[9px] font-black text-amber-500 uppercase mb-4 tracking-widest">Forma: Visitante</h4>
+                                <div id="mHistoryA" class="hist-container"></div>
+                            </div>
                         </div>
-                        <div class="bg-zinc-900/40 p-5 rounded-2xl border border-white/5">
-                            <h5 class="text-[9px] font-black text-zinc-500 uppercase mb-2 tracking-widest italic">Conclusão Analítica Titan</h5>
-                            <p id="mTacticalReport" class="text-xs text-zinc-400 leading-relaxed font-medium italic">Iniciando análise preditiva...</p>
+                        <div class="bg-zinc-900/40 p-5 rounded-2xl border border-white/5 border-l-4 border-blue-500">
+                            <p id="mTacticalReport" class="text-xs text-zinc-400 leading-relaxed font-medium italic">Aguardando telemetria de campo...</p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +197,7 @@
                         engine.realHistory[aId].push({ score: `${aS}-${hS}`, res: aR, opp: cleanName(m.homeTeam.name) });
                     });
                 }
-            } catch (e) { console.warn("Erro ao buscar histórico."); }
+            } catch (e) { console.error("History Error"); }
         }
 
         async function initApp() {
@@ -164,23 +224,28 @@
                     return `
                     <div onclick="openAnalysis(${m.id})" class="game-card p-5">
                         <div class="flex justify-between items-center mb-5">
-                            <span class="text-[9px] font-black ${isLive ? 'text-red-500' : 'text-zinc-600'} uppercase tracking-widest">${isLive ? '• AO VIVO' : 'Agendado'}</span>
+                            <span class="text-[9px] font-black ${isLive ? 'text-red-500' : 'text-zinc-600'} uppercase tracking-widest">${isLive ? '• LIVE' : 'Agendado'}</span>
                             <span class="min-badge">${isLive ? getMatchMinute(m.utcDate) + "'" : new Date(m.utcDate).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                         </div>
                         <div class="space-y-3">
-                            <div class="flex justify-between items-center"><div class="flex items-center gap-2 text-[11px] font-bold text-white uppercase"><img src="${m.homeTeam.crest}" class="w-4 h-4 object-contain"> ${cleanName(m.homeTeam.name)}</div><span class="mono font-black text-sm">${m.score.fullTime.home ?? 0}</span></div>
-                            <div class="flex justify-between items-center"><div class="flex items-center gap-2 text-[11px] font-bold text-white uppercase"><img src="${m.awayTeam.crest}" class="w-4 h-4 object-contain"> ${cleanName(m.awayTeam.name)}</div><span class="mono font-black text-sm">${m.score.fullTime.away ?? 0}</span></div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2 text-[11px] font-bold text-white uppercase"><img src="${m.homeTeam.crest}" class="w-4 h-4 object-contain" onerror="this.src='https://via.placeholder.com/20'"> ${cleanName(m.homeTeam.name)}</div>
+                                <span class="mono font-black text-sm text-white">${m.score.fullTime.home ?? 0}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2 text-[11px] font-bold text-white uppercase"><img src="${m.awayTeam.crest}" class="w-4 h-4 object-contain" onerror="this.src='https://via.placeholder.com/20'"> ${cleanName(m.awayTeam.name)}</div>
+                                <span class="mono font-black text-sm text-white">${m.score.fullTime.away ?? 0}</span>
+                            </div>
                         </div>
                     </div>`;
-                }).join('') || `<div class="col-span-full py-20 text-center text-zinc-700 uppercase font-black text-[10px]">Sem partidas para hoje.</div>`;
-            } catch (e) { console.error("Erro na API."); }
+                }).join('') || `<div class="col-span-full py-24 text-center text-zinc-700 uppercase font-black text-[10px] tracking-[4px]">Sem eventos agendados</div>`;
+            } catch (e) { console.error("Init Error"); }
         }
 
         function openAnalysis(mId) {
             const m = engine.matches.find(x => x.id === mId);
             if(!m) return;
 
-            // Busca estatística ou usa média de 1.4 gols se não houver dados (Bug CL Fix)
             let hT = engine.tableMaster.find(t => t.team.id === m.homeTeam.id) || { goalsFor: 1.4, goalsAgainst: 1.4, playedGames: 1 };
             let aT = engine.tableMaster.find(t => t.team.id === m.awayTeam.id) || { goalsFor: 1.4, goalsAgainst: 1.4, playedGames: 1 };
 
@@ -190,32 +255,31 @@
             const min = isLive ? getMatchMinute(m.utcDate) : 0;
             const rem = Math.max(0, 95 - min) / 90;
 
-            // Expected goals residuais
-            const lambdaH = ((hT.goalsFor/hT.playedGames) * (aT.goalsAgainst/aT.playedGames)) * rem;
-            const lambdaA = ((aT.goalsFor/aT.playedGames) * (hT.goalsAgainst/hT.playedGames)) * rem;
+            const lambdaH = (hT.goalsFor/hT.playedGames) * (aT.goalsAgainst/aT.playedGames) * rem;
+            const lambdaA = (aT.goalsFor/aT.playedGames) * (hT.goalsAgainst/hT.playedGames) * rem;
 
             let pH=0, pD=0, pA=0, maxP=-1, bestS="0-0";
             for(let i=0; i<6; i++) {
                 for(let j=0; j<6; j++) {
                     const prob = poisson(i, lambdaH) * poisson(j, lambdaA);
-                    const finalH = curH + i; const finalA = curA + j;
-                    if(finalH > finalA) pH += prob; else if(finalH === finalA) pD += prob; else pA += prob;
-                    
-                    if(prob > maxP) {
-                        maxP = prob;
-                        bestS = `${finalH} - ${finalA}`;
-                    }
+                    const fH = curH + i; const fA = curA + j;
+                    if(fH > fA) pH += prob; else if(fH === fA) pD += prob; else pA += prob;
+                    if(prob > maxP) { maxP = prob; bestS = `${fH} - ${fA}`; }
                 }
             }
 
             const total = Math.max(0.0001, pH + pD + pA);
             const renderHist = (id) => (engine.realHistory[id] || []).slice(-5).reverse().map(j => `
-                <div class="hist-item"><div class="res-indicator res-${j.res}"></div><div class="hist-score">${j.score}</div><div class="hist-opp">vs ${j.opp}</div></div>`).join('');
+                <div class="hist-row">
+                    <div class="res-pill bg-${j.res}">${j.res.toUpperCase()}</div>
+                    <div class="hist-score">${j.score}</div>
+                    <div class="hist-opp">vs ${j.opp}</div>
+                </div>`).join('');
 
             document.getElementById('modal').classList.add('active');
             document.getElementById('mHistoryH').innerHTML = renderHist(m.homeTeam.id);
             document.getElementById('mHistoryA').innerHTML = renderHist(m.awayTeam.id);
-            document.getElementById('mScore').innerText = bestS; // MOSTRA PLACAR ESTIMADO
+            document.getElementById('mScore').innerText = bestS;
             document.getElementById('mCurrentScore').innerText = `Real: ${curH}-${curA}`;
             document.getElementById('mMin').innerText = isLive ? min + "'" : "PRÉ-JOGO";
             document.getElementById('mNameH').innerText = cleanName(m.homeTeam.name);
@@ -230,8 +294,7 @@
             };
             upd('mProbH', 'mBarH', pH); upd('mProbD', 'mBarD', pD); upd('mProbA', 'mBarA', pA);
             
-            const awayChance = ((1 - Math.exp(-lambdaA)) * 100).toFixed(0);
-            document.getElementById('mTacticalReport').innerText = `O ${cleanName(m.awayTeam.name)} possui uma probabilidade residual de ${awayChance}% de marcar. O placar mais provável até o final, baseado em Poisson, é ${bestS}.`;
+            document.getElementById('mTacticalReport').innerText = `O modelo preditivo Titan indica que o placar mais provável até o encerramento é ${bestS}. A forma recente do visitante apresenta um índice de periculosidade residual de ${(lambdaA).toFixed(2)} gols esperados.`;
         }
 
         function closeModal() { 
