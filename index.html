@@ -2,113 +2,129 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS AI | Pure Neural Analysis</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PROSTATS APEX | Titan v38.5 Identity</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --accent: #6366f1; --bg: #030305; }
-        body { background-color: var(--bg); color: #f4f4f5; font-family: 'Outfit', sans-serif; overflow-x: hidden; margin: 0; }
-        .glass { background: rgba(12, 12, 16, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .match-card { transition: all 0.4s ease; border: 1px solid rgba(255, 255, 255, 0.03); cursor: pointer; }
-        .match-card:hover { transform: translateY(-5px); border-color: var(--accent); background: rgba(99, 102, 241, 0.05); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+        :root { --bg: #030305; --panel: #0a0a0c; --border: #1a1a1e; --ai-blue: #3b82f6; --emerald: #10b981; --red: #ef4444; }
+        body { background-color: var(--bg); color: #d1d1d6; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        .loader {
-            width: 40px; height: 40px; border: 3px solid #1e1e24; border-bottom-color: var(--accent);
-            border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite;
-        }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .data-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: 0.2s; position: relative; }
+        .data-card:hover { border-color: var(--ai-blue); background: #0c0c11; transform: translateY(-2px); }
+        
+        .grid-name { font-size: clamp(9px, 2vw, 11px); font-weight: 800; color: #fff; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; }
 
-        .ai-content h4 { color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 0.75rem; margin-top: 1.5rem; letter-spacing: 0.1em; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 0.5rem; }
-        .ai-content p { color: #a1a1aa; font-size: 0.85rem; line-height: 1.6; }
+        /* Estilo dos Resultados (Forma) */
+        .form-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin: 0 1px; }
+        .form-V { background: var(--emerald); }
+        .form-E { background: #52525b; }
+        .form-D { background: var(--red); }
+
+        .modal-header-pro { display: grid; grid-template-columns: 1fr 100px 1fr; align-items: center; gap: 10px; width: 100%; text-align: center; }
+        .score-box { font-family: 'JetBrains Mono'; font-weight: 800; color: #fff; line-height: 1; white-space: nowrap; }
+        
+        .report-box { border-left: 3px solid var(--ai-blue); background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, rgba(0,0,0,0) 100%); padding: 15px; border-radius: 0 12px 12px 0; margin-bottom: 10px; font-size: 13px; line-height: 1.6; }
+
+        .data-bar-bg { width: 100%; height: 4px; background: #1a1a1e; border-radius: 2px; margin-top: 4px; overflow: hidden; }
+        .data-bar-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
+
+        #modal { backdrop-filter: blur(40px); z-index: 10000; display: none; }
+        #modal.active { display: flex; }
     </style>
 </head>
-<body class="p-4 lg:p-10">
+<body class="flex flex-col min-h-screen">
 
-    <nav class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-indigo-500/20 shadow-2xl">
-                <i data-lucide="brain-circuit" class="text-white"></i>
-            </div>
-            <div>
-                <h1 class="text-2xl font-black tracking-tighter uppercase italic">Nexus <span class="text-indigo-500">Pure AI</span></h1>
-                <p class="text-[9px] text-zinc-500 font-bold tracking-[0.4em] uppercase">100% Neural Direct Link</p>
-            </div>
-        </div>
-
-        <select id="leagueSelect" onchange="init()" class="bg-zinc-900 border border-white/5 text-xs font-bold px-6 py-3 rounded-2xl outline-none focus:ring-2 ring-indigo-500 transition-all cursor-pointer text-white">
-            <option value="BSA">🇧🇷 BRASILEIRÃO SÉRIE A</option>
+    <nav class="h-16 border-b border-zinc-800 bg-black/90 px-6 flex items-center justify-between sticky top-0 z-[1000]">
+        <h1 class="text-sm font-black tracking-widest text-white uppercase italic">APEX <span class="text-blue-500">TITAN v38.5</span></h1>
+        <select id="leagueSelect" onchange="initApp()" class="bg-zinc-900 border border-zinc-800 text-[10px] font-bold px-3 py-2 rounded-xl text-white outline-none">
             <option value="PL">🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER LEAGUE</option>
-            <option value="CL">🇪🇺 CHAMPIONS LEAGUE</option>
+            <option value="BSA">🇧🇷 BRASILEIRÃO A</option>
             <option value="PD">🇪🇸 LA LIGA</option>
+            <option value="SA">🇮🇹 SERIE A</option>
+            <option value="BL1">🇩🇪 BUNDESLIGA</option>
+            <option value="CL">🇪🇺 CHAMPIONS LEAGUE</option>
         </select>
     </nav>
 
-    <main class="max-w-6xl mx-auto">
-        <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        <div id="loader" class="hidden py-32 flex flex-col items-center">
-            <span class="loader"></span>
-            <p class="text-zinc-600 text-[10px] mono mt-4 tracking-widest uppercase">Sincronizando Dados...</p>
-        </div>
+    <main class="flex-1 p-4 lg:p-10 max-w-7xl mx-auto w-full">
+        <header class="mb-8">
+            <h2 class="text-2xl font-black text-white uppercase italic">Radar de Decisão</h2>
+            <p id="statusMsg" class="text-zinc-600 text-[10px] mono uppercase tracking-widest italic">Iniciando estudo de dados...</p>
+        </header>
+
+        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </main>
 
-    <div id="modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/95 backdrop-blur-md" onclick="closeModal()"></div>
-        <div class="glass w-full max-w-5xl rounded-[40px] overflow-hidden relative flex flex-col max-h-[92vh] shadow-2xl">
-            <div id="aiAnalysisLoader" class="absolute inset-0 z-20 bg-[#030305] flex flex-col items-center justify-center">
-                <div class="loader mb-6"></div>
-                <p id="loaderText" class="text-indigo-400 text-xs mono tracking-[0.5em] uppercase animate-pulse">Sincronizando Rede Neural...</p>
+    <!-- MODAL DE ANÁLISE -->
+    <div id="modal" class="fixed inset-0 items-center justify-center p-2 md:p-4 bg-black/95 overflow-hidden">
+        <div class="w-full max-w-5xl bg-[#08080a] border border-white/5 rounded-[2rem] shadow-2xl flex flex-col max-h-[95vh]">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-zinc-900/10">
+                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Relatório de Performance Titan AI</span>
+                <button onclick="closeModal()" class="text-zinc-500 hover:text-white text-2xl px-2">&times;</button>
             </div>
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/2">
-                <div class="flex items-center gap-3">
-                    <span class="w-2 h-2 bg-indigo-500 rounded-full animate-ping"></span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-indigo-400">Gemini Neural Link</span>
+
+            <div class="p-6 md:p-10 overflow-y-auto">
+                <div class="modal-header-pro mb-8 pb-8 border-b border-zinc-900">
+                    <!-- Casa -->
+                    <div class="flex flex-col items-center min-w-0">
+                        <img id="mLogoH" class="w-10 h-10 mb-2 object-contain">
+                        <div id="mNameH" class="grid-name text-center">--</div>
+                        <div id="mFormH" class="flex mt-2"></div>
+                    </div>
+                    
+                    <!-- Centro -->
+                    <div class="flex flex-col items-center justify-center">
+                        <div id="mScore" class="score-box text-3xl md:text-5xl text-white italic">0 - 0</div>
+                        <div class="text-[7px] font-black text-emerald-400 mono mt-2 px-2 py-0.5 bg-emerald-400/10 rounded-full border border-emerald-400/20 uppercase">TITAN-MATCH-ID</div>
+                    </div>
+
+                    <!-- Fora -->
+                    <div class="flex flex-col items-center min-w-0">
+                        <img id="mLogoA" class="w-10 h-10 mb-2 object-contain">
+                        <div id="mNameA" class="grid-name text-center">--</div>
+                        <div id="mFormA" class="flex mt-2"></div>
+                    </div>
                 </div>
-                <button onclick="closeModal()" class="text-zinc-500 hover:text-white transition-colors text-3xl p-2">&times;</button>
-            </div>
-            <div class="p-8 lg:p-12 overflow-y-auto">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-12 mb-16 border-b border-white/5 pb-16">
-                    <div class="text-center flex-1">
-                        <img id="mLogoH" class="w-20 h-20 mx-auto mb-4 object-contain" src="">
-                        <h3 id="mNameH" class="text-xl font-bold uppercase tracking-tight text-white">--</h3>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-[10px] text-zinc-500 uppercase font-bold mb-2 tracking-widest">Placar Previsto</p>
-                        <div id="mScore" class="text-7xl font-black italic tracking-tighter text-white">?-?</div>
-                    </div>
-                    <div class="text-center flex-1">
-                        <img id="mLogoA" class="w-20 h-20 mx-auto mb-4 object-contain" src="">
-                        <h3 id="mNameA" class="text-xl font-bold uppercase tracking-tight text-white">--</h3>
-                    </div>
-                </div>
-                <div class="grid lg:grid-cols-2 gap-12">
-                    <div class="space-y-10">
-                        <h5 class="text-xs font-black uppercase tracking-widest text-zinc-500 italic">Probabilidades</h5>
-                        <div class="space-y-6">
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-[10px] font-bold uppercase text-zinc-400"><span>Mandante</span><span id="mProbH">0%</span></div>
-                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div id="mBarH" class="h-full bg-indigo-500 w-0 transition-all duration-1000"></div></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Probabilidades -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic">Cálculo de Probabilidade</h5>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-[9px] font-bold uppercase mb-1"><span class="text-blue-500">Mandante</span><span id="mProbH">0%</span></div>
+                                <div class="data-bar-bg"><div id="mBarH" class="data-bar-fill bg-blue-600"></div></div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-[10px] font-bold uppercase text-zinc-400"><span>Empate</span><span id="mProbD">0%</span></div>
-                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div id="mBarD" class="h-full bg-zinc-600 w-0 transition-all duration-1000"></div></div>
+                            <div>
+                                <div class="flex justify-between text-[9px] font-bold uppercase mb-1"><span class="text-zinc-500">Empate</span><span id="mProbD">0%</span></div>
+                                <div class="data-bar-bg"><div id="mBarD" class="data-bar-fill bg-zinc-600"></div></div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-[10px] font-bold uppercase text-zinc-400"><span>Visitante</span><span id="mProbA">0%</span></div>
-                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div id="mBarA" class="h-full bg-white w-0 transition-all duration-1000"></div></div>
+                            <div>
+                                <div class="flex justify-between text-[9px] font-bold uppercase mb-1"><span class="text-white">Visitante</span><span id="mProbA">0%</span></div>
+                                <div class="data-bar-bg"><div id="mBarA" class="data-bar-fill bg-white"></div></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                                <span class="block text-[7px] text-zinc-500 font-bold mb-1 uppercase">Ambas Marcam</span>
+                                <span id="mBTTS" class="text-xl font-black text-emerald-500 mono">0%</span>
+                            </div>
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                                <span class="block text-[7px] text-zinc-500 font-bold mb-1 uppercase">Over 2.5</span>
+                                <span id="mO25" class="text-xl font-black text-white mono">0%</span>
                             </div>
                         </div>
                     </div>
-                    <div class="glass p-8 rounded-[32px] border-white/10">
-                        <div class="flex items-center gap-2 mb-4">
-                            <i data-lucide="brain" class="w-4 h-4 text-indigo-400"></i>
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Análise Tática</span>
-                        </div>
-                        <div id="mAiContent" class="ai-content"></div>
+
+                    <!-- Texto Detalhado -->
+                    <div class="lg:col-span-8 space-y-4">
+                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic">Análise de Tendência Recente (Últimos 5 Jogos)</h5>
+                        <div class="report-box" id="mTrendH"></div>
+                        <div class="report-box" id="mTrendA" style="border-color: #71717a;"></div>
+                        <div id="mVerdict" class="p-6 rounded-2xl text-center border font-black uppercase text-xl italic shadow-2xl">--</div>
                     </div>
                 </div>
             </div>
@@ -116,104 +132,144 @@
     </div>
 
     <script>
-        // --- SISTEMA DE OFUSCAÇÃO DE CHAVES ---
-        // Isso esconde a chave de robôs simples de busca de texto.
-        const _O = {
-            f: ["ODUzMjU3MzczODc0YTlhMDY0YWJlYzNlOD", "NDk3YmU="], // Football Key dividida
-            g: ["Z3pnYmRWbWdvenc3UlNkXzZDQzhiTk5mRVpDMU9CQnlTWmFJSQ=="] // Gemini Key invertida e codificada
-        };
-
-        function _X(p) { return atob(p.join('')); }
-        function _G() { return atob(_O.g[0]).split('').reverse().join(''); }
-
+        const API_KEY = '8e3c0eba984c46a090a5c53c37835285';
         const PROXY = "https://corsproxy.io/?";
-        let cache = { table: [], matches: [] };
+        let engine = { table: [], leagueAvg: 2.6, realHistory: {} };
 
-        async function init() {
+        function cleanName(n) {
+            const m = {"Wolverhampton Wanderers": "Wolves", "Manchester United": "Man United", "Manchester City": "Man City", "Tottenham Hotspur": "Tottenham", "Atlético de Madrid": "Atl. Madrid", "Paris Saint-Germain": "PSG"};
+            return m[n] || n.replace(/\s+FC$|\s+CF$|\s+CD$|\s+SSC$|\s+AS$|\s+United$|\s+City$|\s+Wanderers$|\s+Hotspur$|\s+Club$|\s+EC$|\s+AC$|\s+SC$/gi, '').trim();
+        }
+
+        async function studyMatches(league) {
+            try {
+                const res = await fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches?status=FINISHED`, { headers: {'X-Auth-Token': API_KEY}});
+                const data = await res.json();
+                engine.realHistory = {};
+                data.matches.slice(-150).forEach(m => {
+                    const hId = m.homeTeam.id, aId = m.awayTeam.id;
+                    const hRes = m.score.fullTime.home > m.score.fullTime.away ? 'V' : (m.score.fullTime.home === m.score.fullTime.away ? 'E' : 'D');
+                    const aRes = m.score.fullTime.away > m.score.fullTime.home ? 'V' : (m.score.fullTime.home === m.score.fullTime.away ? 'E' : 'D');
+                    if(!engine.realHistory[hId]) engine.realHistory[hId] = [];
+                    if(!engine.realHistory[aId]) engine.realHistory[aId] = [];
+                    engine.realHistory[hId].push({ res: hRes, opp: cleanName(m.awayTeam.name) });
+                    engine.realHistory[aId].push({ res: aRes, opp: cleanName(m.homeTeam.name) });
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
+        function poisson(k, lambda) { return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k); }
+
+        async function initApp() {
             const league = document.getElementById('leagueSelect').value;
             const grid = document.getElementById('grid');
-            const loader = document.getElementById('loader');
-            grid.innerHTML = ''; loader.classList.remove('hidden');
-
+            const status = document.getElementById('statusMsg');
+            grid.innerHTML = "";
+            status.innerText = "COLETANDO DADOS HISTÓRICOS...";
+            
             try {
-                const sUrl = encodeURIComponent(`https://api.football-data.org/v4/competitions/${league}/standings`);
-                const mUrl = encodeURIComponent(`https://api.football-data.org/v4/competitions/${league}/matches?status=SCHEDULED`);
-                const [sRes, mRes] = await Promise.all([
-                    fetch(`${PROXY}${sUrl}`, { headers: {'X-Auth-Token': _X(_O.f)}}),
-                    fetch(`${PROXY}${mUrl}`, { headers: {'X-Auth-Token': _X(_O.f)}})
+                await studyMatches(league);
+                const [resS, resM] = await Promise.all([
+                    fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/standings`, { headers: {'X-Auth-Token': API_KEY}}),
+                    fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches?status=SCHEDULED`, { headers: {'X-Auth-Token': API_KEY}})
                 ]);
-                const sD = await sRes.json(); const mD = await mRes.json();
-                cache.table = sD.standings[0].table;
-                cache.matches = mD.matches.slice(0, 12);
-                render();
-            } catch (err) { 
-                grid.innerHTML = `<p class="col-span-full text-center text-xs text-zinc-500 uppercase">Erro na conexão de dados.</p>`;
-            } finally { loader.classList.add('hidden'); lucide.createIcons(); }
+                const sD = await resS.json(); const mD = await resM.json();
+                engine.table = sD.standings[0].table;
+                status.innerText = "TITAN v38.5 ONLINE";
+                
+                grid.innerHTML = mD.matches.slice(0, 15).map(m => `
+                    <div onclick="openAnalysis(${m.homeTeam.id}, ${m.awayTeam.id})" class="data-card">
+                        <div class="flex justify-between items-center mb-4 text-[9px] mono text-zinc-600 font-bold uppercase">
+                            <span>${new Date(m.utcDate).toLocaleString('pt-BR')}</span>
+                            <span class="text-blue-500">ANALISAR</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 flex-1"><img src="${m.homeTeam.crest}" class="w-6 h-6 object-contain"><span class="grid-name">${cleanName(m.homeTeam.name)}</span></div>
+                            <div class="text-[8px] opacity-30 font-black">VS</div>
+                            <div class="flex items-center gap-2 flex-1 justify-end"><span class="grid-name text-right">${cleanName(m.awayTeam.name)}</span><img src="${m.awayTeam.crest}" class="w-6 h-6 object-contain"></div>
+                        </div>
+                    </div>`).join('');
+            } catch (e) { status.innerText = "ERRO NA API (LIMITE)"; }
         }
 
-        function render() {
-            document.getElementById('grid').innerHTML = cache.matches.map(m => `
-                <div onclick="openAnalysis(${m.homeTeam.id}, ${m.awayTeam.id})" class="match-card glass p-8 rounded-[35px]">
-                    <div class="flex justify-between items-center mb-8 text-[9px] mono font-bold text-zinc-600">
-                        <span>${new Date(m.utcDate).toLocaleDateString('pt-BR')}</span>
-                        <span class="text-indigo-500">LINK ATIVO</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex-1 text-center"><img src="${m.homeTeam.crest}" class="w-12 h-12 mx-auto mb-2 object-contain"><span class="text-[10px] font-black uppercase text-white block truncate">${m.homeTeam.shortName || m.homeTeam.name}</span></div>
-                        <div class="text-[10px] font-bold text-zinc-700 italic">VS</div>
-                        <div class="flex-1 text-center"><img src="${m.awayTeam.crest}" class="w-12 h-12 mx-auto mb-2 object-contain"><span class="text-[10px] font-black uppercase text-white block truncate">${m.awayTeam.shortName || m.awayTeam.name}</span></div>
-                    </div>
-                </div>`).join('');
-        }
+        function openAnalysis(hId, aId) {
+            const h = engine.table.find(t => t.team.id === hId);
+            const a = engine.table.find(t => t.team.id === aId);
+            if(!h || !a) return;
 
-        async function openAnalysis(hId, aId) {
-            document.body.style.overflow = 'hidden';
-            document.getElementById('modal').classList.remove('hidden');
-            document.getElementById('aiAnalysisLoader').classList.remove('hidden');
-            const h = cache.table.find(t => t.team.id === hId) || { position: '?', won: 0 };
-            const a = cache.table.find(t => t.team.id === aId) || { position: '?', won: 0 };
-            const match = cache.matches.find(m => m.homeTeam.id === hId);
-            document.getElementById('mLogoH').src = match.homeTeam.crest;
-            document.getElementById('mLogoA').src = match.awayTeam.crest;
-            document.getElementById('mNameH').innerText = match.homeTeam.name;
-            document.getElementById('mNameA').innerText = match.awayTeam.name;
-            document.getElementById('mAiContent').innerHTML = "";
-            await askGemini(h, a, match.homeTeam.name, match.awayTeam.name);
-        }
+            // Histórico (Últimos 5)
+            const hHist = (engine.realHistory[hId] || []).slice(-5);
+            const aHist = (engine.realHistory[aId] || []).slice(-5);
+            
+            const renderDots = (hist) => hist.map(g => `<span class="form-dot form-${g.res}"></span>`).join('');
+            document.getElementById('mFormH').innerHTML = renderDots(hHist);
+            document.getElementById('mFormA').innerHTML = renderDots(aHist);
 
-        async function askGemini(h, a, hName, aName) {
-            const prompt = `Analise: ${hName} vs ${aName}. Mandante: Pos ${h.position}, ${h.won} vitórias. Visitante: Pos ${a.position}, ${a.won} vitórias. Responda apenas: [PH: %][PD: %][PA: %][SCORE: X-X] e uma breve análise.`;
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${_G()}`;
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-                const data = await response.json();
-                const text = data.candidates[0].content.parts[0].text;
-                const ph = text.match(/\[PH:\s*(\d+)/)?.[1] || 33;
-                const pd = text.match(/\[PD:\s*(\d+)/)?.[1] || 33;
-                const pa = text.match(/\[PA:\s*(\d+)/)?.[1] || 34;
-                const sc = text.match(/\[SCORE:\s*(\d+-\d+)\]/)?.[1] || "0-0";
-                document.getElementById('mProbH').innerText = ph + '%';
-                document.getElementById('mProbD').innerText = pd + '%';
-                document.getElementById('mProbA').innerText = pa + '%';
-                document.getElementById('mScore').innerText = sc;
-                setTimeout(() => {
-                    document.getElementById('mBarH').style.width = ph + '%';
-                    document.getElementById('mBarD').style.width = pd + '%';
-                    document.getElementById('mBarA').style.width = pa + '%';
-                }, 100);
-                document.getElementById('mAiContent').innerHTML = `<h4>Veredito Neural</h4><p>${text.replace(/\[.*?\]/g, '').trim()}</p>`;
-            } catch (e) {
-                document.getElementById('mAiContent').innerHTML = `<p class="text-red-400">Erro na API.</p>`;
+            // Cálculo de Forma (0 a 1.2)
+            const calcWeight = (hist) => {
+                let pts = 0;
+                hist.forEach(g => { if(g.res === 'V') pts+=3; if(g.res === 'E') pts+=1; });
+                return 0.8 + (pts / 15) * 0.4;
+            };
+            const hWeight = calcWeight(hHist);
+            const aWeight = calcWeight(aHist);
+
+            // Poisson
+            let xGH = (h.goalsFor/h.playedGames) * (a.goalsAgainst/a.playedGames) * hWeight * 1.05;
+            let xGA = (a.goalsFor/a.playedGames) * (h.goalsAgainst/h.playedGames) * aWeight;
+
+            let pH=0, pD=0, pA=0, btts=0, o25=0, maxP=-1, bestS="0-0";
+            for(let i=0; i<6; i++) {
+                for(let j=0; j<6; j++) {
+                    let p = poisson(i, xGH) * poisson(j, xGA);
+                    if(i>j) pH+=p; else if(i===j) pD+=p; else pA+=p;
+                    if(i>0 && j>0) btts+=p;
+                    if(i+j > 2.5) o25+=p;
+                    if(p > maxP) { maxP=p; bestS=`${i} - ${j}`; }
+                }
             }
-            document.getElementById('aiAnalysisLoader').classList.add('hidden');
+
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('mScore').innerText = bestS;
+            document.getElementById('mNameH').innerText = cleanName(h.team.name);
+            document.getElementById('mNameA').innerText = cleanName(a.team.name);
+            document.getElementById('mLogoH').src = h.team.crest;
+            document.getElementById('mLogoA').src = a.team.crest;
+
+            const upd = (id, val, bar) => {
+                document.getElementById(id).innerText = (val*100).toFixed(1) + '%';
+                if(bar) setTimeout(() => document.getElementById(bar).style.width = (val*100) + '%', 100);
+            };
+            upd('mProbH', pH, 'mBarH'); upd('mProbD', pD, 'mBarD'); upd('mProbA', pA, 'mBarA');
+            upd('mBTTS', btts); upd('mO25', o25);
+
+            // Relatórios Detalhados
+            const hVits = hHist.filter(x => x.res === 'V').length;
+            document.getElementById('mTrendH').innerText = `${cleanName(h.team.name)} está com um fator de forma de ${(hWeight).toFixed(2)}. Nos últimos 5 jogos, obteve ${hVits} vitórias. A IA detectou que o time ${hWeight > 1 ? 'está em ascensão tática' : 'apresenta instabilidade'} e projeta um volume de ${xGH.toFixed(2)} gols para hoje.`;
+            
+            const aVits = aHist.filter(x => x.res === 'V').length;
+            document.getElementById('mTrendA').innerText = `O ${cleanName(a.team.name)} chega para o confronto com ${aVits} vitórias recentes. Sua defesa cede em média ${(a.goalsAgainst/a.playedGames).toFixed(2)} gols por partida. O "Momentum" do visitante está calculado em ${(aWeight).toFixed(2)}.`;
+
+            const verd = document.getElementById('mVerdict');
+            if(pH > pA + 0.15) {
+                verd.innerText = `PROBABILIDADE ALTA: ${cleanName(h.team.name)}`;
+                verd.className = "p-6 rounded-2xl text-center border font-black uppercase text-xl italic bg-blue-500/10 border-blue-500 text-blue-400";
+            } else if(pA > pH + 0.15) {
+                verd.innerText = `PROBABILIDADE ALTA: ${cleanName(a.team.name)}`;
+                verd.className = "p-6 rounded-2xl text-center border font-black uppercase text-xl italic bg-white/10 border-white text-white";
+            } else {
+                verd.innerText = "EQUILÍBRIO: DUPLA CHANCE OU EMPATE";
+                verd.className = "p-6 rounded-2xl text-center border font-black uppercase text-xl italic bg-zinc-900 border-zinc-700 text-zinc-400";
+            }
         }
 
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
-        window.onload = () => { init(); lucide.createIcons(); };
+        function closeModal() { 
+            document.getElementById('modal').classList.remove('active'); 
+            ['mBarH', 'mBarD', 'mBarA'].forEach(b => document.getElementById(b).style.width = '0%');
+        }
+
+        window.onload = initApp;
     </script>
 </body>
 </html>
