@@ -3,146 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PROSTATS APEX | Titan v40.0</title>
+    <title>PROSTATS APEX | Titan v49.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap');
         
-        :root { --bg: #050507; --card: #0c0c0e; --border: #1a1a1e; --accent: #3b82f6; --win: #10b981; --loss: #ef4444; --draw: #71717a; }
+        :root { 
+            --bg: #030305; --card: #0a0a0c; --border: #1a1a1e; 
+            --accent: #3b82f6; --live: #ef4444; --away: #f59e0b; 
+            --win: #10b981; --loss: #ef4444; --draw: #71717a; 
+        }
         
-        body { background-color: var(--bg); color: #e4e4e7; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: #e4e4e7; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
         .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Estilização dos Cards do Grid */
-        .game-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; transition: 0.3s; cursor: pointer; }
-        .game-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-
-        /* Modal Customizado */
-        #modal { display: none; backdrop-filter: blur(20px); z-index: 1000; }
-        #modal.active { display: flex; }
-
-        .modal-content { 
-            background: #09090b; border: 1px solid #27272a; 
-            width: 100%; max-width: 900px; max-height: 90vh; 
-            border-radius: 24px; overflow-y: auto; 
-        }
-
-        /* Barra de Probabilidade */
-        .prob-bar-bg { height: 6px; background: #18181b; border-radius: 3px; overflow: hidden; margin-top: 8px; }
-        .prob-bar-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
-
-        /* Item de Histórico */
-        .hist-item { 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 10px 14px; background: #121214; border-radius: 12px;
-            margin-bottom: 8px; border: 1px solid #1c1c1f;
-        }
-        .score-pill { 
-            padding: 2px 10px; border-radius: 6px; font-size: 11px; font-weight: 800;
-            min-width: 45px; text-align: center;
-        }
-        .bg-win { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-        .bg-loss { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-        .bg-draw { background: rgba(113, 113, 122, 0.15); color: #a1a1aa; }
-
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+
+        .game-card { 
+            background: var(--card); border: 1px solid var(--border); border-radius: 16px; 
+            transition: all 0.2s ease; cursor: pointer;
+        }
+        .game-card:hover { border-color: var(--accent); background: #0c0c11; transform: translateY(-2px); }
+
+        .min-badge { 
+            font-family: 'JetBrains Mono'; font-size: 10px; background: rgba(59, 130, 246, 0.1); 
+            color: var(--accent); padding: 3px 8px; border-radius: 5px; font-weight: 800;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        #modal { display: none; backdrop-filter: blur(30px); z-index: 10000; }
+        #modal.active { display: flex; }
+        .modal-body { 
+            background: #050507; border: 1px solid #27272a; width: 95%; max-width: 1000px; 
+            border-radius: 28px; max-height: 94vh; overflow: hidden; display: flex; flex-direction: column;
+        }
+
+        .hist-list { display: flex; flex-direction: column; gap: 6px; }
+        .hist-item { 
+            display: flex; align-items: center; background: #0e0e11; 
+            border-radius: 8px; border: 1px solid #1a1a1e; overflow: hidden;
+            height: 38px; position: relative;
+        }
+        .res-indicator { width: 4px; height: 100%; flex-shrink: 0; }
+        .res-v { background-color: var(--win); } /* v minúsculo para bater com API */
+        .res-d { background-color: var(--loss); }
+        .res-e { background-color: var(--draw); }
+
+        .hist-score { 
+            width: 45px; text-align: center; font-family: 'JetBrains Mono'; 
+            font-weight: 800; font-size: 11px; color: #fff; flex-shrink: 0;
+            border-right: 1px solid #1a1a1e; height: 100%; display: flex; align-items: center; justify-content: center;
+        }
+        .hist-opp { 
+            padding: 0 12px; font-size: 10px; font-weight: 600; color: #a1a1aa;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+        }
+
+        .bar-bg { height: 6px; background: #161618; border-radius: 3px; overflow: hidden; margin-top: 8px; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1s ease; }
+
+        .live-pulse { width: 8px; height: 8px; background: var(--live); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
-<body class="p-0 m-0">
+<body>
 
-    <nav class="h-16 border-b border-zinc-800 bg-black/50 sticky top-0 backdrop-blur-md z-50 px-6 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <span class="text-xs font-black tracking-tighter uppercase">Titan <span class="text-blue-500">v40</span></span>
+    <nav class="h-16 border-b border-white/5 bg-black/90 sticky top-0 backdrop-blur-md z-[100] px-6 flex items-center justify-between">
+        <div class="flex flex-col">
+            <span class="text-white font-black italic text-base uppercase tracking-tighter">Titan <span class="text-blue-500 text-xs">v49.1</span></span>
         </div>
-        <select id="leagueSelect" onchange="initApp()" class="bg-zinc-900 border border-zinc-800 text-[10px] font-bold px-4 py-2 rounded-full outline-none">
+        <select id="leagueSelect" onchange="initApp()" class="bg-zinc-900 border border-zinc-800 text-[10px] font-bold px-4 py-2 rounded-xl text-white outline-none">
+            <option value="CL">CHAMPIONS LEAGUE</option>
             <option value="PL">PREMIER LEAGUE</option>
             <option value="BSA">BRASILEIRÃO A</option>
             <option value="PD">LA LIGA</option>
             <option value="SA">SERIE A</option>
-            <option value="CL">CHAMPIONS LEAGUE</option>
         </select>
     </nav>
 
-    <main class="max-w-6xl mx-auto p-6">
-        <div id="statusMsg" class="text-[10px] mono text-zinc-500 mb-6 uppercase tracking-widest">Sincronizando...</div>
+    <main class="p-4 md:p-8 max-w-7xl mx-auto">
+        <div id="statusMsg" class="text-[9px] font-black uppercase tracking-widest text-zinc-600 mb-6 flex items-center gap-2">
+            <div class="w-1.5 h-1.5 bg-zinc-600 rounded-full"></div> Monitoramento Global Ativo
+        </div>
         <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </main>
 
-    <!-- MODAL -->
-    <div id="modal" class="fixed inset-0 p-4 items-center justify-center bg-black/80">
-        <div class="modal-content relative shadow-2xl">
-            <!-- Header do Modal -->
-            <div class="p-6 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-[#09090b] z-10">
-                <span class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Relatório Analítico</span>
-                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center bg-zinc-900 rounded-full text-zinc-400">&times;</button>
+    <div id="modal" class="fixed inset-0 p-3 md:p-4 items-center justify-center bg-black/95">
+        <div class="modal-body shadow-2xl">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-zinc-900/10">
+                <div class="flex items-center gap-2">
+                    <div class="live-pulse"></div>
+                    <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Titan Stadium Intelligence</span>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center bg-zinc-900 rounded-lg text-zinc-400 hover:text-white transition-all">&times;</button>
             </div>
 
-            <div class="p-6">
-                <!-- Banner de Previsão -->
-                <div class="bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 rounded-3xl p-8 mb-8 text-center">
-                    <div class="flex items-center justify-center gap-8 mb-4">
-                        <img id="mLogoH" class="w-16 h-16 object-contain">
-                        <div id="mScore" class="text-6xl font-black italic mono tracking-tighter text-white">0-0</div>
-                        <img id="mLogoA" class="w-16 h-16 object-contain">
+            <div class="p-6 md:p-8 overflow-y-auto flex-1">
+                <!-- PLACAR CENTRAL -->
+                <div class="bg-zinc-900/20 border border-white/5 rounded-[24px] p-6 md:p-10 mb-8">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex-1 text-center">
+                            <img id="mLogoH" class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 object-contain" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
+                            <div id="mNameH" class="text-[11px] font-black text-white uppercase truncate">--</div>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <div id="mScore" class="text-5xl md:text-7xl font-black italic mono text-white leading-none tracking-tighter">0-0</div>
+                            <div id="mMin" class="min-badge mt-4 inline-block">--</div>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <img id="mLogoA" class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 object-contain" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
+                            <div id="mNameA" class="text-[11px] font-black text-amber-500 uppercase truncate">--</div>
+                        </div>
                     </div>
-                    <div class="text-[11px] font-bold text-blue-500 uppercase tracking-widest mb-1">Resultado Provável</div>
-                    <div id="mVerdict" class="text-xl font-black text-white uppercase italic">Analisando...</div>
                 </div>
 
-                <!-- Grid de Dados -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
-                    <!-- Lado Esquerdo: Probabilidades -->
-                    <div>
-                        <h4 class="text-xs font-black uppercase text-zinc-500 mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie"></i> Probabilidades
-                        </h4>
-                        <div class="space-y-4 bg-zinc-900/30 p-5 rounded-2xl border border-zinc-800">
-                            <div>
-                                <div class="flex justify-between text-[11px] font-bold uppercase"><span id="mNameH_Prob">Casa</span> <span id="mProbH">0%</span></div>
-                                <div class="prob-bar-bg"><div id="mBarH" class="prob-bar-fill bg-blue-500"></div></div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-[11px] font-bold uppercase text-zinc-500">Empate <span id="mProbD">0%</span></div>
-                                <div class="prob-bar-bg"><div id="mBarD" class="prob-bar-fill bg-zinc-600"></div></div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-[11px] font-bold uppercase"><span id="mNameA_Prob">Fora</span> <span id="mProbA">0%</span></div>
-                                <div class="prob-bar-bg"><div id="mBarA" class="prob-bar-fill bg-white"></div></div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 pt-2">
-                                <div class="bg-zinc-900 p-3 rounded-xl text-center">
-                                    <span class="block text-[8px] text-zinc-500 uppercase font-bold">Ambas Marcam</span>
-                                    <span id="mBTTS" class="text-sm font-black text-emerald-500">0%</span>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-[#0c0c0e] border border-white/5 p-5 rounded-2xl">
+                            <h4 class="text-[9px] font-black text-zinc-500 uppercase mb-5 tracking-widest">Probabilidades Finais</h4>
+                            <div class="space-y-5">
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold uppercase"><span>Mandante</span> <span id="mProbH">0%</span></div>
+                                    <div class="bar-bg"><div id="mBarH" class="bar-fill bg-blue-600"></div></div>
                                 </div>
-                                <div class="bg-zinc-900 p-3 rounded-xl text-center">
-                                    <span class="block text-[8px] text-zinc-500 uppercase font-bold">Over 2.5</span>
-                                    <span id="mO25" class="text-sm font-black text-white">0%</span>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold uppercase"><span>Empate</span> <span id="mProbD">0%</span></div>
+                                    <div class="bar-bg"><div id="mBarD" class="bar-fill bg-zinc-600"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold uppercase text-amber-500"><span>Visitante</span> <span id="mProbA">0%</span></div>
+                                    <div class="bar-bg"><div id="mBarA" class="bar-fill bg-amber-500"></div></div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Lado Direito: Últimos Jogos -->
-                    <div>
-                        <h4 class="text-xs font-black uppercase text-zinc-500 mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-clock-rotate-left"></i> Forma Recente
-                        </h4>
-                        <div class="grid grid-cols-1 gap-6">
+                        <div class="bg-[#0c0c0e] border border-white/5 p-5 rounded-2xl border-l-4 border-amber-500 flex justify-between items-center">
                             <div>
-                                <div id="mNameH_Hist" class="text-[10px] font-black uppercase mb-3 text-blue-400">Time A</div>
-                                <div id="mHistoryH"></div>
+                                <h4 class="text-[9px] font-black text-amber-500 uppercase mb-1 tracking-widest">Gols Visitante</h4>
+                                <span class="text-[8px] text-zinc-500 font-bold uppercase tracking-tighter">Expectativa de gol residual</span>
                             </div>
-                            <div>
-                                <div id="mNameA_Hist" class="text-[10px] font-black uppercase mb-3 text-zinc-400">Time B</div>
-                                <div id="mHistoryA"></div>
-                            </div>
+                            <span id="mAwayGoalChance" class="text-3xl font-black italic mono text-white">0%</span>
                         </div>
                     </div>
 
+                    <div class="lg:col-span-8 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-[9px] font-black text-blue-500 uppercase mb-3 tracking-widest italic">Histórico: Mandante</h4>
+                                <div id="mHistoryH" class="hist-list"></div>
+                            </div>
+                            <div>
+                                <h4 class="text-[9px] font-black text-amber-500 uppercase mb-3 tracking-widest italic">Histórico: Visitante</h4>
+                                <div id="mHistoryA" class="hist-list"></div>
+                            </div>
+                        </div>
+                        <div class="bg-zinc-900/40 p-5 rounded-2xl border border-white/5 italic">
+                            <h5 class="text-[9px] font-black text-zinc-500 uppercase mb-2 tracking-widest">Conclusão Titan AI</h5>
+                            <p id="mTacticalReport" class="text-xs text-zinc-400 leading-relaxed">Sincronizando estatísticas...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -151,11 +171,16 @@
     <script>
         const API_KEY = '8e3c0eba984c46a090a5c53c37835285';
         const PROXY = "https://corsproxy.io/?";
-        let engine = { table: [], realHistory: {} };
+        let engine = { tableMaster: [], matches: [], realHistory: {} };
 
-        function cleanName(n) {
-            const m = {"Wolverhampton Wanderers": "Wolves", "Manchester United": "Man Utd", "Manchester City": "Man City", "Tottenham Hotspur": "Spurs"};
-            return m[n] || n.replace(/\s+FC$|\s+CF$|\s+CD$|\s+United$|\s+City$|\s+Club$|\s+AC$|\s+SC$/gi, '').trim();
+        function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
+        function poisson(k, lambda) { return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k); }
+        function cleanName(n) { return n ? n.replace(/\s+FC$|\s+CF$|\s+United$|\s+City$|\s+Wanderers$|\s+Hotspur$|\s+Athletic$|\s+Sporting$|\s+Club$/gi, '') : "Time"; }
+
+        function getMatchMinute(startTime) {
+            const diff = Math.floor((new Date() - new Date(startTime)) / 60000);
+            if (diff < 0) return 0;
+            return diff > 90 ? 90 : (diff > 45 && diff < 60 ? 45 : (diff >= 60 ? diff - 15 : diff));
         }
 
         async function studyMatches(league) {
@@ -163,123 +188,130 @@
                 const res = await fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches?status=FINISHED`, { headers: {'X-Auth-Token': API_KEY}});
                 const data = await res.json();
                 engine.realHistory = {};
-                data.matches.slice(-150).forEach(m => {
-                    const hId = m.homeTeam.id, aId = m.awayTeam.id;
-                    const hScore = m.score.fullTime.home, aScore = m.score.fullTime.away;
-                    const hRes = hScore > aScore ? 'V' : (hScore === aScore ? 'E' : 'D');
-                    const aRes = aScore > hScore ? 'V' : (aScore === hScore ? 'E' : 'D');
-                    
-                    if(!engine.realHistory[hId]) engine.realHistory[hId] = [];
-                    if(!engine.realHistory[aId]) engine.realHistory[aId] = [];
-                    
-                    engine.realHistory[hId].push({ score: `${hScore}-${aScore}`, res: hRes, opp: cleanName(m.awayTeam.name) });
-                    engine.realHistory[aId].push({ score: `${aScore}-${hScore}`, res: aRes, opp: cleanName(m.homeTeam.name) });
-                });
-            } catch (e) { console.error(e); }
+                if(data.matches) {
+                    data.matches.slice(-120).forEach(m => {
+                        const hId = m.homeTeam.id, aId = m.awayTeam.id;
+                        const hS = m.score.fullTime.home, aS = m.score.fullTime.away;
+                        const hR = hS > aS ? 'v' : (hS === aS ? 'e' : 'd');
+                        const aR = aS > hS ? 'v' : (aS === hS ? 'e' : 'd');
+                        if(!engine.realHistory[hId]) engine.realHistory[hId] = [];
+                        if(!engine.realHistory[aId]) engine.realHistory[aId] = [];
+                        engine.realHistory[hId].push({ score: `${hS}-${aS}`, res: hR, opp: cleanName(m.awayTeam.name) });
+                        engine.realHistory[aId].push({ score: `${aS}-${hS}`, res: aR, opp: cleanName(m.homeTeam.name) });
+                    });
+                }
+            } catch (e) { console.error("Sync Error"); }
         }
-
-        function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
-        function poisson(k, lambda) { return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k); }
 
         async function initApp() {
             const league = document.getElementById('leagueSelect').value;
             const grid = document.getElementById('grid');
-            document.getElementById('statusMsg').innerText = "CALCULANDO MATRIZES...";
-            
             try {
                 await studyMatches(league);
                 const [resS, resM] = await Promise.all([
                     fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/standings`, { headers: {'X-Auth-Token': API_KEY}}),
-                    fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches?status=SCHEDULED`, { headers: {'X-Auth-Token': API_KEY}})
+                    fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches`, { headers: {'X-Auth-Token': API_KEY}})
                 ]);
-                const sD = await resS.json(); const mD = await resM.json();
-                engine.table = sD.standings[0].table;
-                document.getElementById('statusMsg').innerText = "TITAN V40 PRONTO";
+                const sD = await resS.json();
+                const mD = await resM.json();
+
+                engine.tableMaster = [];
+                if (sD.standings) sD.standings.forEach(g => { if (g.table) engine.tableMaster.push(...g.table); });
+
+                const today = new Date().toISOString().split('T')[0];
+                // Filtrar apenas partidas válidas
+                const active = mD.matches.filter(m => m.homeTeam && m.awayTeam && (m.utcDate.includes(today) || m.status === 'IN_PLAY' || m.status === 'PAUSED'));
                 
-                grid.innerHTML = mD.matches.slice(0, 12).map(m => `
-                    <div onclick="openAnalysis(${m.homeTeam.id}, ${m.awayTeam.id})" class="game-card p-5">
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="text-[9px] mono text-zinc-600 font-bold uppercase">${new Date(m.utcDate).toLocaleDateString('pt-BR')}</span>
-                            <span class="px-2 py-0.5 bg-zinc-900 rounded text-[8px] text-zinc-400 font-black">ANALYTICS</span>
+                // SALVAR AS PARTIDAS NO ENGINE PARA O MODAL USAR
+                engine.matches = active;
+
+                grid.innerHTML = active.map(m => {
+                    const isLive = m.status === 'IN_PLAY' || m.status === 'PAUSED';
+                    return `
+                    <div onclick="openAnalysis(${m.id})" class="game-card p-5">
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="text-[10px] font-black ${isLive ? 'text-red-500' : 'text-zinc-600'} uppercase tracking-widest">${isLive ? '• LIVE' : 'Agendado'}</span>
+                            <span class="min-badge">${isLive ? getMatchMinute(m.utcDate) + "'" : new Date(m.utcDate).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                         </div>
                         <div class="space-y-3">
-                            <div class="flex items-center gap-3">
-                                <img src="${m.homeTeam.crest}" class="w-5 h-5 object-contain">
-                                <span class="text-xs font-bold text-white uppercase">${cleanName(m.homeTeam.name)}</span>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2 text-[11px] font-bold text-white uppercase"><img src="${m.homeTeam.crest}" class="w-4 h-4 object-contain" onerror="this.src='https://via.placeholder.com/20?text=?'"> ${cleanName(m.homeTeam.name)}</div>
+                                <span class="mono font-black text-sm text-white">${m.score.fullTime.home ?? 0}</span>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <img src="${m.awayTeam.crest}" class="w-5 h-5 object-contain">
-                                <span class="text-xs font-bold text-white uppercase">${cleanName(m.awayTeam.name)}</span>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2 text-[11px] font-bold text-white uppercase"><img src="${m.awayTeam.crest}" class="w-4 h-4 object-contain" onerror="this.src='https://via.placeholder.com/20?text=?'"> ${cleanName(m.awayTeam.name)}</div>
+                                <span class="mono font-black text-sm text-white">${m.score.fullTime.away ?? 0}</span>
                             </div>
                         </div>
-                    </div>`).join('');
-            } catch (e) { document.getElementById('statusMsg').innerText = "API BUSY (RETRY IN 60S)"; }
+                    </div>`;
+                }).join('') || `<div class="col-span-full py-20 text-center text-zinc-700 uppercase font-black text-[10px]">Sem partidas hoje</div>`;
+            } catch (e) { console.error("Init error"); }
         }
 
-        function openAnalysis(hId, aId) {
-            const h = engine.table.find(t => t.team.id === hId);
-            const a = engine.table.find(t => t.team.id === aId);
-            if(!h || !a) return;
+        function openAnalysis(mId) {
+            const m = engine.matches.find(x => x.id === mId);
+            if(!m) return;
 
-            const hHist = (engine.realHistory[hId] || []).slice(-5).reverse();
-            const aHist = (engine.realHistory[aId] || []).slice(-5).reverse();
-            
-            const renderHist = (hist) => hist.map(j => `
-                <div class="hist-item">
-                    <span class="score-pill bg-${j.res === 'V' ? 'win' : j.res === 'D' ? 'loss' : 'draw'} mono">${j.score}</span>
-                    <span class="text-[10px] font-medium text-zinc-400">vs ${j.opp}</span>
-                </div>`).join('');
+            let hT = engine.tableMaster.find(t => t.team.id === m.homeTeam.id) || { goalsFor: 1.2, goalsAgainst: 1.2, playedGames: 1 };
+            let aT = engine.tableMaster.find(t => t.team.id === m.awayTeam.id) || { goalsFor: 1.2, goalsAgainst: 1.2, playedGames: 1 };
 
-            document.getElementById('mHistoryH').innerHTML = renderHist(hHist);
-            document.getElementById('mHistoryA').innerHTML = renderHist(aHist);
-            
-            document.getElementById('mNameH_Hist').innerText = cleanName(h.team.name);
-            document.getElementById('mNameA_Hist').innerText = cleanName(a.team.name);
-            document.getElementById('mNameH_Prob').innerText = cleanName(h.team.name);
-            document.getElementById('mNameA_Prob').innerText = cleanName(a.team.name);
+            const isLive = m.status === 'IN_PLAY' || m.status === 'PAUSED';
+            const curH = m.score.fullTime.home ?? 0;
+            const curA = m.score.fullTime.away ?? 0;
+            const min = isLive ? getMatchMinute(m.utcDate) : 0;
+            const rem = Math.max(0, 95 - min) / 90;
 
-            // Poisson Logic
-            const hWeight = 0.8 + ((hHist.filter(x => x.res === 'V').length * 3 + hHist.filter(x => x.res === 'E').length) / 15) * 0.4;
-            const aWeight = 0.8 + ((aHist.filter(x => x.res === 'V').length * 3 + aHist.filter(x => x.res === 'E').length) / 15) * 0.4;
+            const xGH = (hT.goalsFor/hT.playedGames) * (aT.goalsAgainst/aT.playedGames) * rem;
+            const xGA = (aT.goalsFor/aT.playedGames) * (hT.goalsAgainst/hT.playedGames) * rem;
 
-            let xGH = (h.goalsFor/h.playedGames) * (a.goalsAgainst/a.playedGames) * hWeight * 1.05;
-            let xGA = (a.goalsFor/a.playedGames) * (h.goalsAgainst/h.playedGames) * aWeight;
-
-            let pH=0, pD=0, pA=0, btts=0, o25=0, maxP=-1, bestS="0-0";
+            let pH=0, pD=0, pA=0;
             for(let i=0; i<6; i++) {
                 for(let j=0; j<6; j++) {
-                    let p = poisson(i, xGH) * poisson(j, xGA);
-                    if(i>j) pH+=p; else if(i===j) pD+=p; else pA+=p;
-                    if(i>0 && j>0) btts+=p;
-                    if(i+j > 2.5) o25+=p;
-                    if(p > maxP) { maxP=p; bestS=`${i} - ${j}`; }
+                    const p = poisson(i, xGH) * poisson(j, xGA);
+                    if(curH+i > curA+j) pH += p; else if(curH+i === curA+j) pD += p; else pA += p;
                 }
             }
 
+            const total = Math.max(0.0001, pH + pD + pA);
+            const renderHist = (id) => (engine.realHistory[id] || []).slice(-5).reverse().map(j => `
+                <div class="hist-item">
+                    <div class="res-indicator res-${j.res}"></div>
+                    <div class="hist-score">${j.score}</div>
+                    <div class="hist-opp">vs ${j.opp}</div>
+                </div>`).join('');
+
             document.getElementById('modal').classList.add('active');
-            document.getElementById('mScore').innerText = bestS;
-            document.getElementById('mLogoH').src = h.team.crest;
-            document.getElementById('mLogoA').src = a.team.crest;
+            document.getElementById('mHistoryH').innerHTML = renderHist(m.homeTeam.id);
+            document.getElementById('mHistoryA').innerHTML = renderHist(m.awayTeam.id);
+            document.getElementById('mScore').innerText = isLive ? `${curH}-${curA}` : `0-0`;
+            document.getElementById('mMin').innerText = isLive ? min + "'" : "PRÉ-JOGO";
+            document.getElementById('mNameH').innerText = cleanName(m.homeTeam.name);
+            document.getElementById('mNameA').innerText = cleanName(m.awayTeam.name);
+            
+            // ATUALIZAR LOGOS NO MODAL
+            document.getElementById('mLogoH').src = m.homeTeam.crest;
+            document.getElementById('mLogoA').src = m.awayTeam.crest;
 
-            const upd = (id, val, bar) => {
-                document.getElementById(id).innerText = (val*100).toFixed(1) + '%';
-                if(bar) setTimeout(() => document.getElementById(bar).style.width = (val*100) + '%', 100);
+            const upd = (id, bar, val) => {
+                const perc = ((val/total) * 100).toFixed(1);
+                document.getElementById(id).innerText = perc + "%";
+                setTimeout(() => document.getElementById(bar).style.width = perc + "%", 100);
             };
-            upd('mProbH', pH, 'mBarH'); upd('mProbD', pD, 'mBarD'); upd('mProbA', pA, 'mBarA');
-            upd('mBTTS', btts); upd('mO25', o25);
+            upd('mProbH', 'mBarH', pH); upd('mProbD', 'mBarD', pD); upd('mProbA', 'mBarA', pA);
+            
+            const awayGoalChance = ((1 - Math.exp(-xGA)) * 100).toFixed(0);
+            document.getElementById('mAwayGoalChance').innerText = awayGoalChance + "%";
 
-            const v = document.getElementById('mVerdict');
-            if (pH > pA + 0.15) v.innerText = `Favorito: ${cleanName(h.team.name)}`;
-            else if (pA > pH + 0.15) v.innerText = `Favorito: ${cleanName(a.team.name)}`;
-            else v.innerText = "Equilíbrio / Dupla Chance";
+            document.getElementById('mTacticalReport').innerText = `O ${cleanName(m.awayTeam.name)} possui uma probabilidade de ${awayGoalChance}% de marcar no tempo residual. Expectativa residual: ${xGA.toFixed(2)} gols.`;
         }
 
         function closeModal() { 
             document.getElementById('modal').classList.remove('active'); 
             ['mBarH', 'mBarD', 'mBarA'].forEach(b => document.getElementById(b).style.width = '0%');
         }
-
+        
         window.onload = initApp;
+        setInterval(initApp, 60000);
     </script>
 </body>
 </html>
