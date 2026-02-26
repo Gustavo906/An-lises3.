@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PROSTATS APEX | Titan v54.1 Quantum Full</title>
+    <title>PROSTATS APEX | Titan v60.0 Compact Nexus</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
@@ -13,120 +13,123 @@
         
         /* Scan UI */
         .scan-box { background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; display: none; }
-        .progress-bg { height: 4px; background: #111; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        .progress-bg { height: 4px; background: #111; border-radius: 10px; overflow: hidden; margin: 8px 0; }
         .progress-fill { height: 100%; background: var(--ai-blue); width: 0%; transition: 0.4s; box-shadow: 0 0 10px var(--ai-blue); }
+        .scan-log { font-size: 8px; color: #52525b; text-transform: uppercase; font-family: 'JetBrains Mono'; white-space: nowrap; overflow: hidden; }
 
-        /* Grid Cards */
+        /* Grid Principal */
         .data-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: 0.2s; }
         .data-card:hover { border-color: var(--ai-blue); background: #0c0c11; transform: translateY(-2px); }
         .grid-name { font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; }
 
-        /* Modal Structure */
+        /* Modal Layout Lado a Lado */
         .modal-header-pro { display: grid; grid-template-columns: 1fr 100px 1fr; align-items: center; gap: 10px; width: 100%; text-align: center; }
         .score-box { font-family: 'JetBrains Mono'; font-weight: 800; color: #fff; line-height: 1; white-space: nowrap; }
-        
         .report-box { border-left: 3px solid var(--ai-blue); background: rgba(59, 130, 246, 0.05); padding: 15px; border-radius: 0 12px 12px 0; font-size: 13px; line-height: 1.5; color: #e4e4e7; }
-        .h2h-badge { background: #1a1a1e; border: 1px solid #333; padding: 6px; border-radius: 8px; margin-bottom: 6px; font-size: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* H2H SEM QUEBRA DE LINHA */
+        .h2h-row { 
+            display: grid; 
+            grid-template-columns: 1fr 45px 1fr; /* Colunas fixas para o placar no meio */
+            align-items: center; 
+            background: #111114; 
+            border: 1px solid #1a1a1e; 
+            padding: 8px 10px; 
+            border-radius: 8px; 
+            margin-bottom: 6px; 
+            gap: 5px;
+        }
+        .h2h-team { 
+            font-size: 9px; font-weight: 700; color: #a1a1aa; text-transform: uppercase;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+        .h2h-score { font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 800; color: #fff; text-align: center; background: #1a1a1e; border-radius: 4px; padding: 2px 0; }
 
         #modal { backdrop-filter: blur(40px); z-index: 10000; display: none; }
         #modal.active { display: flex; }
-        
         .data-bar-bg { height: 4px; background: #1a1a1e; border-radius: 10px; margin-top: 4px; }
         .data-bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- NAV -->
     <nav class="h-16 border-b border-zinc-800 bg-black/90 px-6 flex items-center justify-between sticky top-0 z-[1000]">
-        <h1 class="text-[10px] font-black tracking-widest text-white uppercase italic">TITAN <span class="text-blue-500 text-[9px]">v54.1 QUANTUM FULL</span></h1>
+        <h1 class="text-[10px] font-black tracking-widest text-white uppercase italic">TITAN <span class="text-blue-500 text-[9px]">v60.0 NEXUS</span></h1>
         <select id="leagueSelect" onchange="initApp()" class="bg-zinc-900 border border-zinc-800 text-[10px] font-bold px-3 py-2 rounded-xl text-white outline-none">
             <option value="PL">🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER LEAGUE</option>
+            <option value="CL">🇪🇺 CHAMPIONS LEAGUE (D+1)</option>
             <option value="BSA">🇧🇷 BRASILEIRÃO A</option>
             <option value="PD">🇪🇸 LA LIGA</option>
             <option value="SA">🇮🇹 SERIE A</option>
-            <option value="BL1">🇩🇪 BUNDESLIGA</option>
-            <option value="CL">🇪🇺 CHAMPIONS LEAGUE</option>
         </select>
     </nav>
 
     <main class="flex-1 p-4 lg:p-10 max-w-7xl mx-auto w-full">
-        <!-- SCANNER UI -->
+        <!-- SCANNER -->
         <div id="scanUI" class="scan-box">
             <div class="flex justify-between items-center mb-1">
-                <span id="scanStatus" class="text-[9px] mono text-blue-400 font-bold uppercase">Escaneando Database...</span>
+                <span id="scanStatus" class="text-[9px] mono text-blue-400 font-bold uppercase">Iniciando Varredura...</span>
                 <span id="scanPerc" class="text-[9px] mono text-white">0%</span>
             </div>
             <div class="progress-bg"><div id="scanBar" class="progress-fill"></div></div>
+            <div id="scanLog" class="scan-log">Aguardando...</div>
         </div>
 
         <header class="mb-8 flex justify-between items-end">
             <div>
-                <h2 class="text-2xl font-black text-white uppercase italic tracking-tighter">Radar de Decisão Neural</h2>
-                <p id="statusMsg" class="text-zinc-600 text-[9px] mono uppercase tracking-widest mt-1">Quantum Scan pronto para processamento...</p>
+                <h2 class="text-2xl font-black text-white uppercase italic tracking-tighter">Decisão Neural</h2>
+                <p id="statusMsg" class="text-zinc-600 text-[9px] mono uppercase tracking-widest mt-1 italic">Pronto para processamento.</p>
             </div>
-            <div class="text-right bg-white/5 p-2 rounded-lg border border-white/5">
+            <div class="bg-white/5 p-2 px-4 rounded-xl border border-white/5 text-right">
                 <span class="block text-[7px] text-zinc-500 font-black uppercase">Memória IA</span>
-                <span id="aiXp" class="text-blue-400 font-bold text-[10px] mono">PROCESSANDO</span>
+                <span id="aiXp" class="text-blue-400 font-bold text-[10px] mono">IDLE</span>
             </div>
         </header>
+        
         <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div id="emptyMsg" class="hidden py-20 text-center text-zinc-500 mono text-xs uppercase italic">Sem jogos no filtro temporal.</div>
     </main>
 
-    <!-- MODAL DE ANÁLISE -->
+    <!-- MODAL -->
     <div id="modal" class="fixed inset-0 items-center justify-center p-3 bg-black/95">
         <div class="w-full max-w-4xl bg-[#08080a] border border-white/5 rounded-[2rem] shadow-2xl flex flex-col max-h-[95vh] overflow-hidden relative">
-            
             <div class="p-4 border-b border-white/5 flex justify-between items-center bg-zinc-900/10">
-                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Relatório Completo Nexus Quantum</span>
+                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Nexus Intelligence v60.0</span>
                 <button onclick="closeModal()" class="text-zinc-500 hover:text-white text-2xl px-2">&times;</button>
             </div>
 
             <div class="p-6 md:p-10 overflow-y-auto">
-                <!-- HEADER LADO A LADO -->
+                <!-- HEADER -->
                 <div class="modal-header-pro mb-8 pb-8 border-b border-zinc-900">
-                    <div class="flex flex-col items-center min-w-0">
+                    <div class="flex flex-col items-center">
                         <img id="mLogoH" class="w-12 h-12 mb-2 object-contain">
                         <div id="mNameH" class="grid-name text-center">--</div>
+                        <div id="mWeightH" class="text-[7px] font-bold text-blue-500 mt-1 mono">PESO IA: 1.00x</div>
                     </div>
                     <div class="flex flex-col items-center justify-center">
                         <p id="mDate" class="text-[7px] mono text-zinc-600 uppercase mb-2 font-black italic">--</p>
                         <div id="mScore" class="score-box text-4xl md:text-5xl text-white italic">0 - 0</div>
-                        <div class="mt-3 px-2 py-0.5 bg-blue-500/10 rounded-full border border-blue-500/20 text-[7px] text-blue-400 font-bold uppercase italic">Nexus Sync</div>
+                        <div class="mt-3 px-2 py-0.5 bg-blue-500/10 rounded-full border border-blue-500/20 text-[7px] text-blue-400 font-bold uppercase italic tracking-tighter">Nexus Sync</div>
                     </div>
-                    <div class="flex flex-col items-center min-w-0">
+                    <div class="flex flex-col items-center">
                         <img id="mLogoA" class="w-12 h-12 mb-2 object-contain">
                         <div id="mNameA" class="grid-name text-center">--</div>
+                        <div id="mWeightA" class="text-[7px] font-bold text-zinc-500 mt-1 mono">PESO IA: 1.00x</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <!-- ANALYTICS -->
                     <div class="lg:col-span-5 space-y-6">
-                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic tracking-widest">Memória de Confronto Real</h5>
-                        <div id="mH2HList" class="space-y-2"></div>
-                        
-                        <div class="pt-4 space-y-4">
-                            <div>
-                                <div class="flex justify-between text-[9px] font-bold uppercase mb-1"><span>Favoritismo IA</span><span id="mProbH">0%</span></div>
-                                <div class="data-bar-bg"><div id="mBarH" class="data-bar-fill bg-blue-600"></div></div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
-                                    <span class="block text-[7px] text-zinc-500 font-bold mb-1 uppercase">Ambas Marcam</span>
-                                    <span id="mBTTS" class="text-base font-black text-emerald-500 mono italic">0%</span>
-                                </div>
-                                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
-                                    <span class="block text-[7px] text-zinc-500 font-bold mb-1 uppercase">Over 2.5 Gols</span>
-                                    <span id="mO25" class="text-base font-black text-white mono italic">0%</span>
-                                </div>
-                            </div>
+                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic tracking-widest">Histórico Real (H2H)</h5>
+                        <div id="mH2HList" class="space-y-1"></div>
+                        <div class="pt-4">
+                            <div class="flex justify-between text-[9px] font-bold uppercase mb-1"><span>Favoritismo IA</span><span id="mProbH">0%</span></div>
+                            <div class="data-bar-bg"><div id="mBarH" class="data-bar-fill bg-blue-600 shadow-[0_0_10px_#3b82f6]"></div></div>
                         </div>
                     </div>
 
-                    <!-- TEXTO -->
                     <div class="lg:col-span-7 space-y-4">
-                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic tracking-widest">Dedução Tática Deep Neural</h5>
+                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic tracking-widest">Dedução Nominal & Interação</h5>
                         <div class="report-box italic" id="mAnalysis">--</div>
                         <div id="mVerdict" class="p-6 rounded-2xl text-center font-black uppercase text-xl italic tracking-tighter shadow-xl">--</div>
                     </div>
@@ -138,14 +141,14 @@
     <script>
         const API_KEY = '8e3c0eba984c46a090a5c53c37835285';
         const PROXY = "https://corsproxy.io/?";
-        let TitanBrain = JSON.parse(localStorage.getItem('titan_memory_v54')) || { experience: 0, weights: {} };
-        let engine = { table: [], finishedMatches: [], teamStats: {} };
+        let TitanBrain = JSON.parse(localStorage.getItem('titan_memory_v60')) || { experience: 0, weights: {} };
+        let engine = { table: [], finishedMatches: [], teamStats: {}, scheduled: [] };
 
         function cleanName(n) { 
             if(!n) return "---";
-            const map = {"Brighton & Hove Albion FC": "BRIGHTON", "Wolverhampton Wanderers FC": "WOLVES", "Manchester United FC": "MAN UTD", "Manchester City FC": "MAN CITY", "Tottenham Hotspur FC": "SPURS", "Leicester City FC": "LEICESTER"};
+            const map = {"Brighton & Hove Albion FC": "BRIGHTON", "Wolverhampton Wanderers FC": "WOLVES", "Manchester United FC": "MAN UTD", "Manchester City FC": "MAN CITY", "Sunderland AFC": "SUNDERLAND", "AFC Bournemouth": "BOURNEMOUTH"};
             if(map[n]) return map[n];
-            return n.replace(/ FC| United| City| SSC| CF| AS| Wanderers| Hotspur| AFC/gi, '').trim().toUpperCase(); 
+            return n.replace(/ AFC| FC| United| City| SSC| CF| AS| Wanderers| Hotspur/gi, '').trim().toUpperCase(); 
         }
 
         function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
@@ -153,54 +156,70 @@
 
         async function initApp() {
             const league = document.getElementById('leagueSelect').value;
-            const status = document.getElementById('statusMsg');
             const scanUI = document.getElementById('scanUI');
+            const log = document.getElementById('scanLog');
+            
             document.getElementById('grid').innerHTML = "";
+            document.getElementById('emptyMsg').classList.add('hidden');
             scanUI.style.display = "block";
-            updateScan("Iniciando Quantum Scan...", 10);
+            
+            updateScan("Quantum Access...", 10);
 
             try {
                 const [resS, resH, resM] = await Promise.all([
                     fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/standings`, { headers: {'X-Auth-Token': API_KEY}}),
                     fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches?status=FINISHED&limit=200`, { headers: {'X-Auth-Token': API_KEY}}),
-                    fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches?status=SCHEDULED`, { headers: {'X-Auth-Token': API_KEY}})
+                    fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches`, { headers: {'X-Auth-Token': API_KEY}})
                 ]);
                 
                 const sD = await resS.json(); const hD = await resH.json(); const mD = await resM.json();
-                engine.table = sD.standings[0].table;
-                engine.finishedMatches = hD.matches || [];
-                updateScan("Mapeando DNA e BTTS...", 50);
 
-                engine.table.forEach(entry => {
+                let ut = [];
+                if (sD.standings) sD.standings.forEach(s => { if(s.table) ut = [...ut, ...s.table]; });
+                engine.table = ut;
+                engine.finishedMatches = hD.matches || [];
+                
+                const now = new Date();
+                const tomorrow = new Date(); tomorrow.setDate(now.getDate() + 1);
+                const after = new Date(); after.setDate(now.getDate() + 2);
+
+                if (league === 'CL') {
+                    engine.scheduled = (mD.matches || []).filter(m => {
+                        const d = new Date(m.utcDate);
+                        return d >= tomorrow && d < after;
+                    });
+                } else {
+                    engine.scheduled = (mD.matches || []).filter(m => (m.status === 'SCHEDULED' || m.status === 'TIMED') && new Date(m.utcDate) > now);
+                }
+
+                updateScan("Analysing DNA...", 50);
+
+                for(let entry of engine.table) {
                     const tId = entry.team.id;
-                    const games = engine.finishedMatches.filter(m => m.homeTeam.id === tId || m.awayTeam.id === tId).slice(0, 12);
-                    let s = 0, c = 0, btts = 0, over = 0;
+                    log.innerText = `Calibrando sinapse: ${cleanName(entry.team.name)}...`;
+                    const games = engine.finishedMatches.filter(m => m.homeTeam.id === tId || m.awayTeam.id === tId).slice(0, 10);
+                    let s = 0, c = 0;
                     games.forEach(g => {
                         const isH = g.homeTeam.id === tId;
-                        const gs = isH ? g.score.fullTime.home : g.score.fullTime.away;
-                        const gc = isH ? g.score.fullTime.away : g.score.fullTime.home;
-                        s += (gs || 0); c += (gc || 0);
-                        if(gs > 0 && gc > 0) btts++;
-                        if((gs + gc) > 2.5) over++;
+                        s += isH ? g.score.fullTime.home : g.score.fullTime.away;
+                        c += isH ? g.score.fullTime.away : g.score.fullTime.home;
                     });
                     const len = games.length || 1;
-                    engine.teamStats[tId] = { avgS: s/len, avgC: c/len, bttsP: btts/len, overP: over/len };
-
+                    engine.teamStats[tId] = { avgS: s/len, avgC: c/len };
                     if(!TitanBrain.weights[tId]) TitanBrain.weights[tId] = 1.0;
                     TitanBrain.weights[tId] += ((s/len) - 1.3) * 0.005;
                     TitanBrain.weights[tId] = Math.max(0.7, Math.min(1.3, TitanBrain.weights[tId]));
-                });
+                    await new Promise(r => setTimeout(r, 50));
+                }
 
                 TitanBrain.experience += engine.table.length;
-                localStorage.setItem('titan_memory_v54', JSON.stringify(TitanBrain));
+                localStorage.setItem('titan_memory_v60', JSON.stringify(TitanBrain));
                 document.getElementById('aiXp').innerText = TitanBrain.experience + " JOGOS";
+                
+                updateScan("Complete.", 100);
+                setTimeout(() => { scanUI.style.display = "none"; renderGrid(); }, 800);
 
-                updateScan("Finalizando Sincronização...", 100);
-                setTimeout(() => scanUI.style.display = "none", 1000);
-
-                renderGrid(mD.matches.slice(0, 15));
-                status.innerText = "NEXUS v54.1 OPERACIONAL";
-            } catch (e) { status.innerText = "ERRO DE API - AGUARDE 60S"; }
+            } catch (e) { document.getElementById('statusMsg').innerText = "API LIMIT - 60S"; }
         }
 
         function updateScan(txt, perc) {
@@ -209,13 +228,15 @@
             document.getElementById('scanPerc').innerText = perc + "%";
         }
 
-        function renderGrid(matches) {
-            document.getElementById('grid').innerHTML = matches.map(m => {
-                const h = engine.table.find(t => t.team.id === m.homeTeam.id);
-                const a = engine.table.find(t => t.team.id === m.awayTeam.id);
-                if(!h || !a) return '';
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            if(engine.scheduled.length === 0) {
+                document.getElementById('emptyMsg').classList.remove('hidden');
+                return;
+            }
+            grid.innerHTML = engine.scheduled.slice(0, 15).map(m => {
                 const d = new Date(m.utcDate);
-                return `<div onclick="openAnalysis(${m.homeTeam.id}, ${m.awayTeam.id}, '${m.utcDate}')" class="data-card group">
+                return `<div onclick="openAnalysis(${JSON.stringify(m).replace(/"/g, '&quot;')})" class="data-card group">
                     <div class="flex justify-between items-center mb-4 text-[9px] mono text-zinc-700 font-bold uppercase">
                         <span>${d.toLocaleDateString('pt-BR')} • ${d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</span>
                         <div class="w-1 h-1 bg-zinc-800 rounded-full group-hover:bg-blue-500"></div>
@@ -229,14 +250,14 @@
             }).join('');
         }
 
-        function openAnalysis(hId, aId, dateRaw) {
+        function openAnalysis(matchData) {
             const modal = document.getElementById('modal');
             modal.classList.add('active');
             
-            const hT = engine.table.find(t => t.team.id === hId);
-            const aT = engine.table.find(t => t.team.id === aId);
-            const hS = engine.teamStats[hId];
-            const aS = engine.teamStats[aId];
+            const hId = matchData.homeTeam.id; const aId = matchData.awayTeam.id;
+            const hS = engine.teamStats[hId] || {avgS:1.2, avgC:1.2};
+            const aS = engine.teamStats[aId] || {avgS:1.2, avgC:1.2};
+            const wH = TitanBrain.weights[hId] || 1.0; const wA = TitanBrain.weights[aId] || 1.0;
 
             const h2h = engine.finishedMatches.filter(m => (m.homeTeam.id === hId && m.awayTeam.id === aId) || (m.homeTeam.id === aId && m.awayTeam.id === hId)).slice(0, 2);
 
@@ -250,20 +271,24 @@
                 h2hAvgH /= h2h.length; h2hAvgA /= h2h.length;
             }
 
-            document.getElementById('mH2HList').innerHTML = h2h.length > 0 ? h2h.map(m => `<div class="h2h-badge"><span class="font-bold text-zinc-500">${cleanName(m.homeTeam.name)}</span><span class="text-white font-black">${m.score.fullTime.home} x ${m.score.fullTime.away}</span><span class="font-bold text-zinc-500">${cleanName(m.awayTeam.name)}</span></div>`).join('') : `<div class="py-4 text-center text-zinc-600 text-[10px] mono">DUELO TÁTICO INÉDITO</div>`;
+            // H2H COM TRAVA DE QUEBRA DE LINHA (GRID 3 COLUNAS)
+            document.getElementById('mH2HList').innerHTML = h2h.length > 0 ? h2h.map(m => `
+                <div class="h2h-row">
+                    <span class="h2h-team text-right">${cleanName(m.homeTeam.name)}</span>
+                    <span class="h2h-score">${m.score.fullTime.home}x${m.score.fullTime.away}</span>
+                    <span class="h2h-team text-left">${cleanName(m.awayTeam.name)}</span>
+                </div>`).join('') : `<div class="py-4 text-center text-zinc-600 text-[10px] mono uppercase">Duelo Inédito</div>`;
 
             let xGH = (h2h.length > 0) ? (h2hAvgH * 0.7) + (hS.avgS * 0.3) : hS.avgS;
             let xGA = (h2h.length > 0) ? (h2hAvgA * 0.7) + (aS.avgS * 0.3) : aS.avgS;
-            xGH *= (TitanBrain.weights[hId] || 1);
+            xGH *= wH;
 
-            let pH=0, pD=0, pA=0, bttsProb=0, overProb=0, matrix = [];
+            let pH=0, pD=0, pA=0, matrix = [];
             for(let i=0; i<6; i++) {
                 for(let j=0; j<6; j++) {
-                    const prob = poisson(i, xGH) * poisson(j, xGA);
-                    if(i > j) pH += prob; else if(i === j) pD += prob; else pA += prob;
-                    if(i > 0 && j > 0) bttsProb += prob;
-                    if(i + j > 2.5) overProb += prob;
-                    matrix.push({s: `${i} - ${j}`, p: prob, h: i, a: j});
+                    const p = poisson(i, xGH) * poisson(j, xGA);
+                    if(i > j) pH += p; else if(i === j) pD += p; else pA += p;
+                    matrix.push({s: `${i} - ${j}`, p: p, h: i, a: j});
                 }
             }
 
@@ -272,27 +297,29 @@
             let resType = (diff < 0.18) ? ((pH >= pA) ? "DC_1X" : "DC_X2") : (pH > pA ? "WIN_H" : "WIN_A");
 
             if (resType.includes("DC")) {
-                v.innerText = `DUPLA CHANCE: ${cleanName(resType === "DC_1X" ? hT.team.name : aT.team.name)} OU EMPATE`;
+                v.innerText = `CHANCE DUPLA: ${cleanName(resType === "DC_1X" ? matchData.homeTeam.name : matchData.awayTeam.name)} OU EMPATE`;
                 v.className = "p-6 rounded-2xl text-center font-black uppercase text-xl italic bg-zinc-900 text-zinc-400 border border-zinc-700 shadow-xl";
             } else {
-                v.innerText = "VITÓRIA: " + cleanName(resType === "WIN_H" ? hT.team.name : aT.team.name);
+                v.innerText = "VITÓRIA: " + cleanName(resType === "WIN_H" ? matchData.homeTeam.name : matchData.awayTeam.name);
                 v.className = `p-6 rounded-2xl text-center font-black uppercase text-xl italic shadow-xl ${resType === "WIN_H" ? 'bg-blue-600/10 text-blue-500 border border-blue-500/20' : 'bg-white/10 text-white border border-white/20'}`;
             }
 
             let filtered = (resType === "WIN_H") ? matrix.filter(m => m.h > m.a) : (resType === "WIN_A" ? matrix.filter(m => m.a > m.h) : (resType === "DC_1X" ? matrix.filter(m => m.h >= m.a) : matrix.filter(m => m.a >= m.h)));
-            if((hS.overP + aS.overP)/2 > 0.5 && filtered.length > 1) filtered = filtered.filter(f => (f.h+f.a) >= 2);
             let bestS = filtered.reduce((p, c) => p.p > c.p ? p : c).s;
 
-            // UI UPDATES
+            // UI
             document.getElementById('mScore').innerText = bestS;
-            document.getElementById('mLogoH').src = hT.team.crest; document.getElementById('mLogoA').src = aT.team.crest;
-            document.getElementById('mNameH').innerText = cleanName(hT.team.name); document.getElementById('mNameA').innerText = cleanName(aT.team.name);
+            document.getElementById('mLogoH').src = matchData.homeTeam.crest; document.getElementById('mLogoA').src = matchData.awayTeam.crest;
+            document.getElementById('mNameH').innerText = cleanName(matchData.homeTeam.name); document.getElementById('mNameA').innerText = cleanName(matchData.awayTeam.name);
+            document.getElementById('mWeightH').innerText = `PESO IA: ${wH.toFixed(2)}x`; document.getElementById('mWeightA').innerText = `PESO IA: ${wA.toFixed(2)}x`;
             document.getElementById('mProbH').innerText = (Math.max(pH, pA)*100).toFixed(1)+'%'; document.getElementById('mBarH').style.width = (Math.max(pH, pA)*100)+'%';
-            document.getElementById('mBTTS').innerText = ((bttsProb + (hS.bttsP + aS.bttsP)/2)/2 * 100).toFixed(0) + '%';
-            document.getElementById('mO25').innerText = ((overProb + (hS.overP + aS.overP)/2)/2 * 100).toFixed(0) + '%';
-            document.getElementById('mDate').innerText = new Date(dateRaw).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+            document.getElementById('mDate').innerText = new Date(matchData.utcDate).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
 
-            document.getElementById('mAnalysis').innerText = `O Nexus processou ${engine.finishedMatches.length} eventos. Com média recente de ${hS.avgS.toFixed(1)} gols do mandante e histórico de H2H indicando paridade, o veredito recai sobre a proteção em Chance Dupla. Peso IA: ${(TitanBrain.weights[hId]||1).toFixed(2)}x.`;
+            // INTERAÇÃO NOMINAL
+            const hN = cleanName(matchData.homeTeam.name); const aN = cleanName(matchData.awayTeam.name);
+            let talk = (wH > wA + 0.05) ? `A IA aprendeu que o ${hN} está em um momento mais eficiente que o ${aN}. ` : (wA > wH + 0.05) ? `O ${aN} possui uma vantagem neural superior ao ${hN} no recorte atual. ` : `O equilíbrio de forças entre ${hN} e ${aN} é absoluto. `;
+            talk += `A análise de volume ofensivo sugere placar de ${bestS}.`;
+            document.getElementById('mAnalysis').innerText = talk;
 
             document.getElementById('modal').classList.add('active');
         }
