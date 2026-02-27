@@ -3,30 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PROSTATS APEX | Titan v63.0 Total Nexus</title>
+    <title>PROSTATS APEX | Titan v76.0 Tactical DNA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
-        :root { --bg: #030305; --panel: #0a0a0c; --border: #1a1a1e; --ai-blue: #3b82f6; --emerald: #10b981; }
+        :root { --bg: #030305; --panel: #0a0a0c; --border: #1a1a1e; --ai-blue: #3b82f6; --emerald: #10b981; --cyan: #22d3ee; --red: #ef4444; }
         body { background-color: var(--bg); color: #d1d1d6; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
+        /* Scan UI */
         .scan-box { background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; display: none; border-left: 4px solid var(--ai-blue); }
         .progress-bg { height: 4px; background: #111; border-radius: 10px; overflow: hidden; margin: 8px 0; }
-        .progress-fill { height: 100%; background: var(--ai-blue); width: 0%; transition: 0.4s; box-shadow: 0 0 10px var(--ai-blue); }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--ai-blue), var(--cyan)); width: 0%; transition: 0.4s; }
         .scan-log { font-size: 8px; color: #52525b; text-transform: uppercase; font-family: 'JetBrains Mono'; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .data-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: 0.2s; }
+        /* Grid Cards */
+        .data-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: 0.2s; position: relative; }
         .data-card:hover { border-color: var(--ai-blue); background: #0c0c11; transform: translateY(-2px); }
         .grid-name { font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: block; width: 100%; }
 
+        /* Modal Structure */
         .modal-header-pro { display: grid; grid-template-columns: 1fr 100px 1fr; align-items: center; gap: 10px; width: 100%; text-align: center; }
         .score-box { font-family: 'JetBrains Mono'; font-weight: 800; color: #fff; line-height: 1; white-space: nowrap; }
         .report-box { border-left: 3px solid var(--ai-blue); background: rgba(59, 130, 246, 0.05); padding: 15px; border-radius: 0 12px 12px 0; font-size: 13px; line-height: 1.5; color: #e4e4e7; }
-
+        
         .h2h-item { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; background: #111114; border: 1px solid #1a1a1e; padding: 8px; border-radius: 8px; margin-bottom: 4px; gap: 4px; }
         .h2h-t-name { font-size: 9px; font-weight: 700; color: #a1a1aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
         .h2h-s-box { font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 800; color: #fff; text-align: center; background: #1a1a1e; border-radius: 4px; }
+
+        /* Archetype Tags */
+        .dna-tag { font-size: 7px; font-weight: 900; padding: 2px 5px; border-radius: 3px; background: rgba(255,255,255,0.05); color: var(--cyan); margin-top: 4px; display: inline-block; border: 1px solid rgba(255,255,255,0.1); }
+
+        .status-tag { font-size: 7px; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-top: 4px; display: inline-block; border: 1px solid rgba(255,255,255,0.1); }
+        .bg-risk { background: rgba(239, 68, 68, 0.1); color: var(--red); border-color: rgba(239, 68, 68, 0.2); }
+        .bg-stable { background: rgba(16, 185, 129, 0.1); color: var(--emerald); border-color: rgba(16, 185, 129, 0.2); }
 
         #modal { backdrop-filter: blur(40px); z-index: 10000; display: none; }
         #modal.active { display: flex; }
@@ -37,7 +47,7 @@
 <body class="flex flex-col min-h-screen">
 
     <nav class="h-16 border-b border-zinc-800 bg-black/90 px-6 flex items-center justify-between sticky top-0 z-[1000]">
-        <h1 class="text-[10px] font-black tracking-widest text-white uppercase italic">TITAN <span class="text-blue-500 text-[9px]">v63.0 NEXUS</span></h1>
+        <h1 class="text-[10px] font-black tracking-widest text-white uppercase italic">TITAN <span class="text-blue-500 text-[9px]">v76.0 DNA</span></h1>
         <select id="leagueSelect" onchange="initApp()" class="bg-zinc-900 border border-zinc-800 text-[9px] font-bold px-3 py-2 rounded-xl text-white outline-none focus:border-blue-500">
             <option value="PL">🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER LEAGUE</option>
             <option value="BSA">🇧🇷 BRASILEIRÃO A</option>
@@ -49,78 +59,91 @@
             <option value="DED">🇳🇱 EREDIVISIE</option>
             <option value="PPL">🇵🇹 PRIMEIRA LIGA</option>
             <option value="ELC">🏴󠁧󠁢󠁥󠁮󠁧󠁿 CHAMPIONSHIP</option>
-            <option value="EC">🇪🇺 EURO COPA</option>
-            <option value="WC">🌎 COPA DO MUNDO</option>
         </select>
     </nav>
 
     <main class="flex-1 p-4 lg:p-10 max-w-7xl mx-auto w-full">
+        <!-- SCAN UI -->
         <div id="scanUI" class="scan-box">
             <div class="flex justify-between items-center mb-1">
-                <span id="scanStatus" class="text-[9px] mono text-blue-400 font-bold uppercase">Quantum Scan Active...</span>
+                <span id="scanStatus" class="text-[9px] mono text-blue-400 font-bold uppercase tracking-widest">Sincronizando DNA Tático...</span>
                 <span id="scanPerc" class="text-[9px] mono text-white">0%</span>
             </div>
             <div class="progress-bg"><div id="scanBar" class="progress-fill"></div></div>
-            <div id="scanLog" class="scan-log">Auditando database...</div>
+            <div id="scanLog" class="scan-log">Aguardando Nexus...</div>
         </div>
 
         <header class="mb-8 flex justify-between items-end">
             <div>
-                <h2 class="text-2xl font-black text-white uppercase italic tracking-tighter">Radar Global Skeptic</h2>
-                <p id="statusMsg" class="text-zinc-600 text-[9px] mono uppercase tracking-widest mt-1 italic">Sincronizando 12 ligas com ceticismo neural...</p>
+                <h2 class="text-2xl font-black text-white uppercase italic tracking-tighter">Radar de Decisão DNA</h2>
+                <p id="statusMsg" class="text-zinc-600 text-[9px] mono uppercase tracking-widest mt-1 italic">Sincronizando estatísticas avançadas...</p>
             </div>
             <div class="bg-white/5 p-2 px-4 rounded-xl border border-white/5 text-right">
-                <span class="block text-[7px] text-zinc-500 font-black uppercase">Inteligência</span>
-                <span id="aiXp" class="text-blue-400 font-bold text-[10px] mono tracking-tighter uppercase">PROCESSANDO</span>
+                <span class="block text-[7px] text-zinc-500 font-black uppercase">Peso IA</span>
+                <span id="aiXp" class="text-blue-400 font-bold text-[10px] mono">PROCESSANDO</span>
             </div>
         </header>
+        
         <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-        <div id="emptyMsg" class="hidden py-20 text-center text-zinc-500 mono text-xs uppercase italic tracking-widest">Nenhum jogo futuro encontrado para os critérios.</div>
+        <div id="emptyMsg" class="hidden py-20 text-center text-zinc-500 mono text-xs uppercase italic tracking-widest">Aguardando dados da API...</div>
     </main>
 
     <!-- MODAL -->
     <div id="modal" class="fixed inset-0 items-center justify-center p-3 bg-black/95">
-        <div class="w-full max-w-4xl bg-[#08080a] border border-white/5 rounded-[2rem] shadow-2xl flex flex-col max-h-[95vh] overflow-hidden relative">
+        <div class="w-full max-w-4xl bg-[#08080a] border border-white/5 rounded-[2rem] shadow-2xl flex flex-col max-h-[95vh] overflow-hidden relative text-left">
             <div class="p-4 border-b border-white/5 flex justify-between items-center bg-zinc-900/10">
-                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest italic tracking-tighter">Nexus Deep Audit Report v63</span>
+                <span id="mRiskAudit" class="status-tag">ESTUDANDO DNA...</span>
                 <button onclick="closeModal()" class="text-zinc-500 hover:text-white text-2xl px-2">&times;</button>
             </div>
 
             <div class="p-6 md:p-10 overflow-y-auto">
-                <div class="modal-header-pro mb-8 pb-8 border-b border-zinc-900">
-                    <div class="flex flex-col items-center min-w-0">
+                <!-- HEADER LADO A LADO PRECISION -->
+                <div class="modal-header-pro mb-8 pb-8 border-b border-zinc-900 text-center">
+                    <div class="flex flex-col items-center">
                         <img id="mLogoH" class="w-12 h-12 mb-2 object-contain">
                         <div id="mNameH" class="grid-name text-center">--</div>
-                        <div id="mWeightH" class="text-[7px] font-bold text-blue-500 mt-1 mono">PESO IA: 1.00x</div>
+                        <div id="mArchH" class="dna-tag">---</div>
+                        <div id="mWeightH" class="text-[7px] font-bold text-blue-500 mt-1 mono">IA: 1.00x</div>
                     </div>
                     <div class="flex flex-col items-center justify-center">
                         <p id="mDate" class="text-[7px] mono text-zinc-600 uppercase mb-2 font-black italic">--</p>
                         <div id="mScore" class="score-box text-4xl md:text-5xl text-white italic">0 - 0</div>
-                        <div class="mt-3 px-2 py-0.5 bg-blue-500/10 rounded-full border border-blue-500/20 text-[7px] text-blue-400 font-bold uppercase italic">Nexus Sync</div>
+                        <div id="mCertainty" class="status-tag">CERTEZA: --</div>
                     </div>
-                    <div class="flex flex-col items-center min-w-0">
+                    <div class="flex flex-col items-center">
                         <img id="mLogoA" class="w-12 h-12 mb-2 object-contain">
                         <div id="mNameA" class="grid-name text-center">--</div>
-                        <div id="mWeightA" class="text-[7px] font-bold text-zinc-500 mt-1 mono">PESO IA: 1.00x</div>
+                        <div id="mArchA" class="dna-tag">---</div>
+                        <div id="mWeightA" class="text-[7px] font-bold text-zinc-500 mt-1 mono">IA: 1.00x</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <div class="lg:col-span-5 space-y-6">
-                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic tracking-widest">Memória H2H Recente</h5>
+                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic tracking-widest">Histórico Real (H2H)</h5>
                         <div id="mH2HList" class="space-y-1"></div>
                         <div class="pt-4 space-y-4">
                             <div>
                                 <div class="flex justify-between text-[9px] font-bold uppercase mb-1"><span>Favoritismo IA</span><span id="mProbH">0%</span></div>
                                 <div class="data-bar-bg"><div id="mBarH" class="data-bar-fill bg-blue-600 shadow-[0_0_10px_#3b82f6]"></div></div>
                             </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
+                                    <span class="block text-[7px] text-zinc-500 font-bold mb-1 uppercase">Ambas Marcam</span>
+                                    <span id="mBTTS" class="text-base font-black text-emerald-500 mono italic">0%</span>
+                                </div>
+                                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
+                                    <span class="block text-[7px] text-zinc-500 font-bold mb-1 uppercase">Over 2.5</span>
+                                    <span id="mO25" class="text-base font-black text-white mono italic">0%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="lg:col-span-7 space-y-4">
-                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic tracking-widest">Auditória & Interação Neural</h5>
+                        <h5 class="text-[10px] font-black text-zinc-500 uppercase italic tracking-widest">Dedução Nominal & Auditoria</h5>
                         <div class="report-box italic" id="mAnalysis">--</div>
-                        <div id="mVerdict" class="p-6 rounded-2xl text-center font-black uppercase text-xl italic tracking-tighter shadow-xl">--</div>
+                        <div id="mVerdict" class="p-6 rounded-2xl text-center font-black uppercase text-xl italic tracking-tighter shadow-xl transition-all duration-300">--</div>
                     </div>
                 </div>
             </div>
@@ -130,20 +153,14 @@
     <script>
         const API_KEY = '8e3c0eba984c46a090a5c53c37835285';
         const PROXY = "https://corsproxy.io/?";
-        let TitanBrain = JSON.parse(localStorage.getItem('titan_memory_v63')) || { experience: 0, weights: {} };
+        let TitanBrain = JSON.parse(localStorage.getItem('titan_memory_v76')) || { experience: 0, weights: {} };
         let engine = { table: [], finishedMatches: [], teamStats: {}, scheduled: [] };
 
         function cleanName(n) { 
             if(!n) return "---";
-            const map = {
-                "Brighton & Hove Albion FC": "BRIGHTON", "Wolverhampton Wanderers FC": "WOLVES", "Manchester United FC": "MAN UTD",
-                "Manchester City FC": "MAN CITY", "Tottenham Hotspur FC": "SPURS", "Leicester City FC": "LEICESTER",
-                "Paris Saint-Germain FC": "PSG", "Olympique de Marseille": "MARSEILLE", "Sporting Clube de Portugal": "SPORTING",
-                "Sport Lisboa e Benfica": "BENFICA", "Futebol Clube do Porto": "PORTO", "Ajax": "AJAX",
-                "Feyenoord": "FEYENOORD", "Real Madrid CF": "REAL MADRID", "FC Bayern München": "BAYERN", "Sunderland AFC": "SUNDERLAND", "AFC Bournemouth": "BOURNEMOUTH"
-            };
+            const map = {"Brighton & Hove Albion FC": "BRIGHTON", "Wolverhampton Wanderers FC": "WOLVES", "Manchester United FC": "MAN UTD", "Manchester City FC": "MAN CITY", "Sunderland AFC": "SUNDERLAND", "AFC Bournemouth": "BOURNEMOUTH"};
             if(map[n]) return map[n];
-            return n.replace(/ AFC| FC| United| City| SSC| CF| AS| Wanderers| Hotspur| Clube de Portugal| Lisboa e/gi, '').trim().toUpperCase(); 
+            return n.replace(/ AFC| FC| United| City| SSC| CF| AS| Wanderers| Hotspur/gi, '').trim().toUpperCase(); 
         }
 
         function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
@@ -156,7 +173,7 @@
             document.getElementById('grid').innerHTML = "";
             document.getElementById('emptyMsg').classList.add('hidden');
             scanUI.style.display = "block";
-            updateScan("Acessando Database...", 10);
+            updateScan("Accessing Global Quantum Nexus...", 10);
 
             try {
                 const [resS, resH, resM] = await Promise.all([
@@ -164,6 +181,7 @@
                     fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches?status=FINISHED&limit=200`, { headers: {'X-Auth-Token': API_KEY}}),
                     fetch(`${PROXY}https://api.football-data.org/v4/competitions/${league}/matches`, { headers: {'X-Auth-Token': API_KEY}})
                 ]);
+                
                 const sD = await resS.json(); const hD = await resH.json(); const mD = await resM.json();
 
                 let ut = []; if (sD.standings) sD.standings.forEach(s => { if(s.table) ut = [...ut, ...s.table]; });
@@ -180,31 +198,41 @@
                     engine.scheduled = (mD.matches || []).filter(m => (m.status === 'SCHEDULED' || m.status === 'TIMED') && new Date(m.utcDate) > now);
                 }
 
-                updateScan("Auditando DNA Sustentável...", 50);
+                updateScan("Analyzing Data DNA...", 50);
 
                 for(let entry of engine.table) {
                     const tId = entry.team.id;
-                    log.innerText = `Auditando consistência: ${cleanName(entry.team.name)}...`;
+                    log.innerText = `Auditando DNA: ${cleanName(entry.team.name)}...`;
                     const games = engine.finishedMatches.filter(m => m.homeTeam.id === tId || m.awayTeam.id === tId).slice(0, 10);
-                    let s = 0, c = 0, wins = 0;
+                    let s = 0, c = 0, b = 0, o = 0, scores = [];
                     games.forEach(g => {
                         const isH = g.homeTeam.id === tId;
                         const gs = isH ? g.score.fullTime.home : g.score.fullTime.away;
                         const gc = isH ? g.score.fullTime.away : g.score.fullTime.home;
-                        s += (gs||0); c += (gc||0);
-                        if(gs > gc) wins++;
+                        s += (gs||0); c += (gc||0); scores.push(gs);
+                        if(gs>0 && gc>0) b++; if(gs+gc>2.5) o++;
                     });
+                    
+                    const mean = s / (games.length || 1);
+                    const vol = Math.sqrt(scores.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) / (games.length || 1));
                     const len = games.length || 1;
-                    const sustain = wins >= 7 ? 0.92 : 1.0; 
-                    engine.teamStats[tId] = { avgS: s/len, avgC: c/len, wins: wins, sustain: sustain };
+                    
+                    // DEFINIÇÃO DE ARQUÉTIPO
+                    let arch = "EQUILIBRADO";
+                    if(s/len > 1.8) arch = "ATAQUE EXPLOSIVO";
+                    else if(c/len < 0.9) arch = "MURALHA DEFENSIVA";
+                    else if(vol > 1.1) arch = "INCONSISTENTE";
+
+                    engine.teamStats[tId] = { avgS: s/len, avgC: c/len, bttsP: b/len, overP: o/len, vol: vol, arch: arch };
+                    
                     if(!TitanBrain.weights[tId]) TitanBrain.weights[tId] = 1.0;
                     TitanBrain.weights[tId] += ((s/len) - 1.3) * 0.005;
                     TitanBrain.weights[tId] = Math.max(0.7, Math.min(1.3, TitanBrain.weights[tId]));
-                    await new Promise(r => setTimeout(r, 30));
+                    await new Promise(r => setTimeout(r, 20));
                 }
 
                 TitanBrain.experience += engine.table.length;
-                localStorage.setItem('titan_memory_v63', JSON.stringify(TitanBrain));
+                localStorage.setItem('titan_memory_v76', JSON.stringify(TitanBrain));
                 document.getElementById('aiXp').innerText = TitanBrain.experience + " JOGOS PROCESSADOS";
                 updateScan("Complete.", 100);
                 setTimeout(() => { scanUI.style.display = "none"; renderGrid(); }, 800);
@@ -223,15 +251,15 @@
             if(engine.scheduled.length === 0) { document.getElementById('emptyMsg').classList.remove('hidden'); return; }
             grid.innerHTML = engine.scheduled.slice(0, 15).map(m => {
                 const d = new Date(m.utcDate);
-                return `<div onclick="openAnalysis(${JSON.stringify(m).replace(/"/g, '&quot;')})" class="data-card group">
+                return `<div onclick="openAnalysis(${JSON.stringify(m).replace(/"/g, '&quot;')})" class="data-card group text-center">
                     <div class="flex justify-between items-center mb-4 text-[9px] mono text-zinc-700 font-bold uppercase">
                         <span>${d.toLocaleDateString('pt-BR')} • ${d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</span>
                         <div class="w-1 h-1 bg-zinc-800 rounded-full group-hover:bg-blue-500 transition-all"></div>
                     </div>
                     <div class="flex items-center justify-between gap-2">
-                        <div class="flex-1 text-center min-w-0"><img src="${m.homeTeam.crest}" class="w-7 h-7 mx-auto mb-2 object-contain"><span class="grid-name">${cleanName(m.homeTeam.name)}</span></div>
+                        <div class="flex-1 min-w-0"><img src="${m.homeTeam.crest}" class="w-7 h-7 mx-auto mb-2 object-contain"><span class="grid-name">${cleanName(m.homeTeam.name)}</span></div>
                         <div class="text-[9px] font-black opacity-10 italic">VS</div>
-                        <div class="flex-1 text-center min-w-0"><img src="${m.awayTeam.crest}" class="w-7 h-7 mx-auto mb-2 object-contain"><span class="grid-name">${cleanName(m.awayTeam.name)}</span></div>
+                        <div class="flex-1 min-w-0"><img src="${m.awayTeam.crest}" class="w-7 h-7 mx-auto mb-2 object-contain"><span class="grid-name">${cleanName(m.awayTeam.name)}</span></div>
                     </div>
                 </div>`;
             }).join('');
@@ -241,8 +269,8 @@
             const modal = document.getElementById('modal');
             modal.classList.add('active');
             const hId = matchData.homeTeam.id; const aId = matchData.awayTeam.id;
-            const hS = engine.teamStats[hId] || {avgS:1.2, avgC:1.2, wins:5, sustain:1};
-            const aS = engine.teamStats[aId] || {avgS:1.2, avgC:1.2, wins:5, sustain:1};
+            const hS = engine.teamStats[hId] || {avgS:1.2, avgC:1.2, bttsP:0.5, overP:0.5, vol:0.5, arch:'EQUILIBRADO'};
+            const aS = engine.teamStats[aId] || {avgS:1.2, avgC:1.2, bttsP:0.5, overP:0.5, vol:0.5, arch:'EQUILIBRADO'};
             const wH = TitanBrain.weights[hId] || 1.0; const wA = TitanBrain.weights[aId] || 1.0;
 
             const h2h = engine.finishedMatches.filter(m => (m.homeTeam.id === hId && m.awayTeam.id === aId) || (m.homeTeam.id === aId && m.awayTeam.id === hId)).slice(0, 2);
@@ -260,41 +288,64 @@
                     <span class="h2h-t-name text-right">${cleanName(m.homeTeam.name)}</span>
                     <span class="h2h-s-box">${m.score.fullTime.home}x${m.score.fullTime.away}</span>
                     <span class="h2h-t-name text-left">${cleanName(m.awayTeam.name)}</span>
-                </div>`).join('') : `<div class="py-4 text-center text-zinc-600 text-[10px] mono uppercase">Duelo Inédito</div>`;
+                </div>`).join('') : `<div class="py-4 text-center text-zinc-600 text-[10px] mono uppercase">Duelo Tático Inédito</div>`;
 
             let xGH = (h2h.length > 0) ? (hAvgH * 0.7) + (hS.avgS * 0.3) : hS.avgS;
             let xGA = (h2h.length > 0) ? (hAvgA * 0.7) + (aS.avgS * 0.3) : aS.avgS;
-            xGH *= wH * hS.sustain; xGA *= wA * aS.sustain;
+            xGH *= wH; xGA *= wA;
 
-            let pH=0, pD=0, pA=0, matrix = [];
+            let pH=0, pD=0, pA=0, bProb=0, oProb=0, matrix = [];
             for(let i=0; i<6; i++) {
                 for(let j=0; j<6; j++) {
                     const p = poisson(i, xGH) * poisson(j, xGA);
                     if(i > j) pH += p; else if(i === j) pD += p; else pA += p;
+                    if(i > 0 && j > 0) bProb += p; if(i+j>2.5) oProb += p;
                     matrix.push({s: `${i} - ${j}`, p: p, h: i, a: j});
                 }
             }
 
             const diff = Math.abs(pH - pA);
+            const isVolatile = hS.vol > 1.1 || aS.vol > 1.1;
             const v = document.getElementById('mVerdict');
-            let resType = (diff < 0.20 || hS.wins >= 7 || aS.wins >= 7) ? ((pH >= pA) ? "DC_1X" : "DC_X2") : (pH > pA ? "WIN_H" : "WIN_A");
+            let resType = (diff < 0.20 || isVolatile) ? ((pH >= pA) ? "DC_1X" : "DC_X2") : (pH > pA ? "WIN_H" : "WIN_A");
 
-            v.innerText = resType.includes("DC") ? `DUPLA CHANCE: ${cleanName(resType === "DC_1X" ? matchData.homeTeam.name : matchData.awayTeam.name)} OU EMPATE` : "VITÓRIA: " + cleanName(resType === "WIN_H" ? matchData.homeTeam.name : matchData.awayTeam.name);
+            v.innerText = resType.includes("DC") ? `CHANCE DUPLA: ${cleanName(resType === "DC_1X" ? matchData.homeTeam.name : matchData.awayTeam.name)} OU EMPATE` : "VITÓRIA: " + cleanName(resType === "WIN_H" ? matchData.homeTeam.name : matchData.awayTeam.name);
             v.className = `p-6 rounded-2xl text-center font-black uppercase text-xl italic shadow-xl ${resType.includes("DC") ? 'bg-zinc-900 text-zinc-400 border border-zinc-700' : (resType === "WIN_H" ? 'bg-blue-600/10 text-blue-500 border border-blue-500/20' : 'bg-white/10 text-white border border-white/20')}`;
 
             let filtered = (resType === "WIN_H") ? matrix.filter(m => m.h > m.a) : (resType === "WIN_A" ? matrix.filter(m => m.a > m.h) : (resType === "DC_1X" ? matrix.filter(m => m.h >= m.a) : matrix.filter(m => m.a >= m.h)));
+            
+            // FILTRO DE DNA: Se ambos são explosivos, força placares altos.
+            if(hS.arch === "ATAQUE EXPLOSIVO" && aS.arch === "ATAQUE EXPLOSIVO") {
+                if(filtered.length > 2) filtered = filtered.filter(f => (f.h+f.a) >= 2);
+            }
+            
             let bestS = filtered.reduce((p, c) => p.p > c.p ? p : c).s;
 
+            // UI UPDATES
             document.getElementById('mScore').innerText = bestS;
             document.getElementById('mLogoH').src = matchData.homeTeam.crest; document.getElementById('mLogoA').src = matchData.awayTeam.crest;
             document.getElementById('mNameH').innerText = cleanName(matchData.homeTeam.name); document.getElementById('mNameA').innerText = cleanName(matchData.awayTeam.name);
-            document.getElementById('mWeightH').innerText = `PESO IA: ${wH.toFixed(2)}x`; document.getElementById('mWeightA').innerText = `PESO IA: ${wA.toFixed(2)}x`;
+            document.getElementById('mWeightH').innerText = `IA: ${wH.toFixed(2)}x`; document.getElementById('mWeightA').innerText = `IA: ${wA.toFixed(2)}x`;
+            document.getElementById('mArchH').innerText = hS.arch; document.getElementById('mArchA').innerText = aS.arch;
             document.getElementById('mProbH').innerText = (Math.max(pH, pA)*100).toFixed(1)+'%'; document.getElementById('mBarH').style.width = (Math.max(pH, pA)*100)+'%';
+            document.getElementById('mBTTS').innerText = (bProb * 100).toFixed(0) + '%'; document.getElementById('mO25').innerText = (oProb * 100).toFixed(0) + '%';
             document.getElementById('mDate').innerText = new Date(matchData.utcDate).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
 
+            const cert = document.getElementById('mCertainty');
+            cert.innerText = diff > 0.25 ? "CERTEZA ALTA" : (diff > 0.12 ? "CERTEZA MÉDIA" : "CERTEZA BAIXA");
+            cert.className = `status-tag ${diff > 0.25 ? 'bg-stable' : (diff > 0.12 ? 'bg-zinc-800 text-white' : 'bg-risk')}`;
+
+            const riskTag = document.getElementById('mRiskAudit');
+            riskTag.innerText = isVolatile ? "ALTO RISCO / VOLATILIDADE" : "ESTABILIDADE TÁTICA";
+            riskTag.className = `status-tag ${isVolatile ? 'bg-risk' : 'bg-stable'}`;
+
+            // INTERAÇÃO NOMINAL COM DNA
             const hN = cleanName(matchData.homeTeam.name); const aN = cleanName(matchData.awayTeam.name);
-            let talk = (hS.wins >= 7) ? `A IA aplicou ceticismo ao ${hN} pela sequência longa de vitórias. ` : (wH > wA + 0.05) ? `O ${hN} demonstra uma força neural superior no momento. ` : `Paridade neural absoluta detectada. `;
-            talk += `Cruzando isso com os últimos placares de ${h2h.length} confrontos diretos, o Nexus projeta ${bestS}.`;
+            let talk = `Estamos diante de um choque entre o ${hN} (${hS.arch}) e o ${aN} (${aS.arch}). `;
+            if(hS.arch === "ATAQUE EXPLOSIVO" && aS.arch === "MURALHA DEFENSIVA") talk += `O grande desafio será a quebra do bloco defensivo do visitante. `;
+            else if(hS.arch === "ATAQUE EXPLOSIVO" && aS.arch === "ATAQUE EXPLOSIVO") talk += `A tendência é de um jogo aberto com alto volume de finalizações. `;
+            
+            talk += `Pela análise nominal, o Nexus projeta ${bestS}.`;
             document.getElementById('mAnalysis').innerText = talk;
             document.getElementById('modal').classList.add('active');
         }
